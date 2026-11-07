@@ -134,6 +134,8 @@ svg { display: block; flex: none; }
 .badge.ok { background: var(--ok-soft); color: var(--ok-ink); }
 .badge.busy { background: var(--ai-soft); color: var(--ai-ink); }
 .empty { margin: 0; padding: 14px; border: 1px dashed var(--line-2); border-radius: 12px; font: 400 14px/22px var(--f-ar); color: var(--muted); }
+.empty-home { padding: 28px 20px; border: 1px dashed var(--line-2); border-radius: 16px; background: var(--card); text-align: center; }
+.empty-home .btn { margin-top: 12px; }
 
 /* home + course pages */
 .page { max-width: 1120px; margin-inline: auto; padding: 20px 16px calc(96px + env(safe-area-inset-bottom, 0px)); display: flex; flex-direction: column; gap: 28px; }
@@ -669,36 +671,7 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
     return dup ? 'رقم الشابتر ' + v + ' موجود عندك. اختر رقماً ثانياً.' : '';
   }
 
-  var courses = [
-    { id: 1, name: 'علم التشريح والأنسجة', code: 'ANAT 201', field: 'الطب', chapters: [
-      ch('الجهاز العضلي والهيكلي', f('Anatomy_Musculoskeletal_Lecture01.pdf', 18, '6.1 MB', 'قبل 3 أيام')),
-      ch('تشريح الأطراف العلوية والضفيرة العصبية', f('Anatomy_Upper_Limbs_Lecture02.pdf', 24, '8.4 MB', 'اليوم')),
-      ch('الجهاز الدوري والأوعية الدموية'),
-      ch('الأعصاب القحفية وجذع الدماغ')
-    ] },
-    { id: 2, name: 'قواعد البيانات ونظم المعلومات', code: 'CS 204', field: 'علوم الحاسب', chapters: [
-      ch('مقدمة في قواعد البيانات', f('CS204_Intro.pdf', 8, '3.2 MB', 'قبل أسبوع')),
-      ch('نموذج الكيانات والعلاقات', f('CS204_ERD.pptx', 10, '5.8 MB', 'قبل 5 أيام')),
-      ch('لغة SQL', f('CS204_SQL.pdf', 12, '7.4 MB', 'قبل يومين')),
-      ch('التطبيع', f('CS204_Normalization.pdf', 6, '2.9 MB', 'أمس')),
-      ch('إدارة المعاملات')
-    ] },
-    { id: 3, name: 'مبادئ إدارة الأعمال والتسويق', code: 'MKT 210', field: 'إدارة الأعمال', chapters: [
-      ch('مفاهيم الإدارة', f('MKT210_Management.pdf', 9, '4.0 MB', 'قبل أسبوعين')),
-      ch('المزيج التسويقي', f('MKT210_Marketing_Mix.pptx', 11, '6.6 MB', 'قبل 4 أيام')),
-      ch('سلوك المستهلك', f('MKT210_Consumer.pdf', 8, '3.5 MB', 'أمس')),
-      ch('تجزئة السوق')
-    ] },
-    { id: 4, name: 'هندسة البرمجيات وتصميم النظم', code: 'SE 311', field: 'علوم الحاسب', chapters: [
-      ch('مقدمة في هندسة البرمجيات', f('SE311_Intro.pdf', 10, '4.2 MB', 'قبل 3 أسابيع')),
-      ch('تحليل المتطلبات', f('SE311_Requirements.pdf', 8, '3.1 MB', 'قبل أسبوعين')),
-      ch('نمذجة UML', f('SE311_UML.pptx', 9, '5.0 MB', 'قبل 10 أيام')),
-      ch('أنماط التصميم', f('SE311_Patterns.pdf', 7, '3.8 MB', 'قبل أسبوع')),
-      ch('اختبار البرمجيات', f('SE311_Testing.pdf', 11, '6.2 MB', 'قبل 3 أيام')),
-      ch('إدارة المشاريع', f('SE311_PM.pdf', 7, '2.7 MB', 'أمس')),
-      ch('الصيانة والتطوير')
-    ] }
-  ];
+  var courses = [];
 
   /* ---------- data: sample slides for the study screen ---------- */
   var DECKS = {
@@ -913,7 +886,7 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
   function deckFor(co) { return DECKS[{ 1: 'anat', 2: 'cs', 3: 'mkt', 4: 'se' }[co.id] || 'sample']; }
 
   /* ---------- helpers ---------- */
-  var view = 'login', selId = 1, nextId = 5;
+  var view = 'login', selId = 1, nextId = 1;
   var adding = false, chErr = '', upErr = null, modalField = '', lastFocus = null, toastTimer = null, uploadTarget = null;
   var stu = null;
   var S = null;
@@ -922,7 +895,7 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
   var subscribed = false, trial = null, trialEnded = false, tzAsked = false;
   var wordFilter = 0;
   var user = null, authErr = '', auth = { step: 'id', method: 'mail', id: '', left: 0 }, authTimer = null;
-  var noteForm = null, noteErr = '', uid = 100;
+  var noteForm = null, noteErr = '', noteSeq = 0;
   var LOGO = '<svg viewBox="0 0 96 96" fill="none" stroke="currentColor" stroke-width="8" stroke-linecap="round" aria-hidden="true"><path d="M8 84V58a12 12 0 0 1 24 0v26"/><path d="M36 84V36a12 12 0 0 1 24 0v48"/><path d="M64 84V58a12 12 0 0 1 24 0v26"/><path d="M4 91H92"/></svg>';
   var plan = null, cycle = 'year', payMethod = 'apple', payState = '', editC = false, renIdx = -1, undoFn = null, aiCache = {}, delConfirm = false, pwOpen = false, wiped = false, recovering = /type=recovery/.test(location.hash);
   var PRICE = { month: 19, year: 149 }, PAY_OPEN = false;
@@ -972,16 +945,16 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
   function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
   function tzBanner() {
-    if (trial) { var n = tzLeft(); return '<div class="nb tzb' + (n <= 3 ? ' warn' : '') + '"><span>🎁 تجربتك المجانية: <b>' + tzWord(n) + '</b> بكل المزايا</span><button class="link" type="button" data-act="plan">التفاصيل</button></div>'; }
-    if (trialEnded) return '<div class="nb tzb"><span>انتهت تجربتك المجانية. ملاحظاتك وكتابتك محفوظة وتقدر تشوفها.</span><button class="link" type="button" data-act="plan">اشترك وكمّل</button></div>';
+    if (trial) { var n = tzLeft(); return '<div class="nb tzb' + (n <= 3 ? ' warn' : '') + '"><span>' + (n <= 0 ? '🎁 الأساس معك دائماً، والمزايا الإضافية <b>تنتهي اليوم</b>' : '🎁 الأساس معك دائماً، و<b>' + tzWord(n) + '</b> على المزايا الإضافية') + '</span><button class="link" type="button" data-act="plan">وش الفرق؟</button></div>'; }
+    if (trialEnded) return '<div class="nb tzb"><span>🎁 الأساس معك دائماً. انتهت فترة المزايا الإضافية، وملاحظاتك وكتابتك محفوظة.</span><button class="link" type="button" data-act="plan">وش الفرق؟</button></div>';
     return '';
   }
-  function tzOpen(title, paras, primary, secondary) {
+  function tzOpen(title, paras, primary, secondary, to) {
     var old = document.getElementById('tzm'); if (old) old.remove();
-    var d = document.createElement('div'); d.className = 'modal'; d.id = 'tzm';
+    var d = document.createElement('div'); d.className = 'modal'; d.id = 'tzm'; d.dir = settings.lang === 'en' ? 'ltr' : 'rtl';
     d.innerHTML = '<div class="sheet tzs" role="dialog" aria-modal="true" aria-labelledby="tzT"><div class="m-head"><h2 id="tzT">' + title + '</h2></div>' +
       paras.map(function (x) { return '<p class="tzp">' + x + '</p>'; }).join('') +
-      '<div class="tzact"><button class="btn primary" type="button" data-tz="go">' + primary + '</button><button class="btn" type="button" data-tz="x">' + secondary + '</button></div></div>';
+      '<div class="tzact"><button class="btn primary" type="button" data-tz="go" data-to="' + (to || 'plan') + '">' + primary + '</button>' + (secondary ? '<button class="btn" type="button" data-tz="x">' + secondary + '</button>' : '') + '</div></div>';
     document.body.appendChild(d); document.body.style.overflow = 'hidden';
     var b = d.querySelector('[data-tz="go"]'); if (b) b.focus();
   }
@@ -989,14 +962,14 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
   document.addEventListener('click', function (e) {
     var t = e.target; if (!t.closest) return;
     var b = t.closest('[data-tz]');
-    if (b) { var go = b.dataset.tz === 'go'; tzClose(); if (go) show('plan'); return; }
+    if (b) { var go = b.dataset.tz === 'go' && b.dataset.to !== 'none'; tzClose(); if (go) show('plan'); return; }
     if (t.id === 'tzm') tzClose();
   });
   function tzLock(kind) {
     var what = kind === 'notes' ? 'تسجيل الملاحظات' : 'الكتابة والتظليل على السلايد';
     tzOpen('هذي من مزايا المشتركين 🌟', [
       what + ' مفتوحة للمشتركين. وكل شيء كتبته قبل محفوظ عندك وتقدر تشوفه.',
-      trialEnded ? 'انتهت تجربتك المجانية. إذا عجبتك المزايا، اشترك وكمّل من وين وقفت.' : 'جرّب الاشتراك وكمّل بدون حدود.'
+      trialEnded ? 'انتهت فترة المزايا الإضافية. وإذا حبيت ترجع لها، تقدر تشترك.' : 'تقدر تفتحها بالاشتراك.'
     ], 'شوف الاشتراك', 'لاحقاً');
   }
   function tzPrompts() {
@@ -1007,27 +980,89 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
       if (startedAgo < 2 * 864e5 && !lsGet(k + 'w')) {
         lsSet(k + 'w', '1');
         tzOpen('هلا فيك في تنظيم 👋', [
-          'تستاهل هدية منا: <b>10 أيام</b> بكل مزايا الاشتراك، مجاناً وبدون أي دفع.',
-          '✎ اكتب وظلّل على سلايداتك، وكل شيء ينحفظ<br>☰ دفتر ملاحظات بجانب كل سلايد<br>💡 شرح مبسط لكل كلمة تترجمها<br>🧠 كود أسئلة جاهز من مادتك',
-          'جرّبها على راحتك، وخذ وقتك. وإذا حسّيت إنها تفيدك، يسعدنا تكمل معنا.'
-        ], 'يلا نبدأ', 'شكراً');
+          'ارفع سلايداتك (PDF أو بوربوينت) وتظهر لك مثل ما هي.<br>اضغط على أي مصطلح وتطلع ترجمته حسب تخصصك، مع شرح مبسط.<br>اكتب وظلّل على السلايد، وكل شي ينحفظ.<br>دفتر ملاحظات جنب كل سلايد.<br>احفظ الكلمات الجديدة وراجعها وقت المذاكرة.<br>كود أسئلة جاهز من محاضرتك.',
+          'ابدأ بإضافة أول مادة لك.'
+        ], 'يلا نبدأ', null, 'none');
         return;
       }
       var st = n <= 1 ? 'r1' : n <= 3 ? 'r3' : n <= 5 ? 'r5' : '';
       if (st && !lsGet(k + st)) {
         ['r5', 'r3', 'r1'].forEach(function (x) { if (['r5', 'r3', 'r1'].indexOf(x) <= ['r5', 'r3', 'r1'].indexOf(st)) lsSet(k + x, '1'); });
-        if (st === 'r5') tzOpen('كيف ماشية تجربتك؟ 🎁', ['تقدر تستفيد من كل المزايا باقي أيام التجربة. وكل اللي تكتبه وتلخّصه محفوظ عندك.', 'وإذا حبّيت تكمل بنفس المزايا بدون انقطاع، الاشتراك ينتظرك متى ما حبّيت.'], 'شوف الاشتراك', 'كمّل تجربتي');
-        else if (st === 'r3') tzOpen('اقتربت نهاية هديتك ⏳', ['باقي أيام قليلة على تجربتك المجانية. استفد منها قبل ما تخلص.', 'وبعد ما تنتهي ما نحذف شيء: ملاحظاتك وكتابتك تبقى تشوفها، والترجمة تبقى مجانية. بس الكتابة والملاحظات الجديدة تحتاج اشتراك.'], 'شوف الاشتراك', 'كمّل تجربتي');
-        else tzOpen('آخر يوم في تجربتك 💙', ['شكراً إنك جرّبتنا. إذا عجبتك المزايا، اشترك عشان ما تنقطع.', 'وإذا لا، ما عليك شيء: حسابك وكلماتك وكل اللي كتبته يبقون معك.'], 'شوف الاشتراك', 'تمام');
+        if (st === 'r5') tzOpen('كيف ماشية الأمور؟ 🎁', ['باقي لك أيام على المزايا الإضافية، وكل اللي تكتبه وتظلله محفوظ عندك.', 'وبعدها يبقى معك الأساس: رفع السلايدات، وترجمة المصطلحات، وحفظ الكلمات.'], 'وش الفرق؟', 'تمام');
+        else if (st === 'r3') tzOpen('قربت نهاية المزايا الإضافية 🎁', ['بعد أيام قليلة تنتهي المزايا الإضافية. بعدها تبقى معك الترجمة وحفظ الكلمات، وكل اللي كتبته وظللته يظل محفوظ وتقدر تشوفه.'], 'وش الفرق؟', 'تمام');
+        else tzOpen('آخر يوم للمزايا الإضافية 🎁', ['قريب تنتهي المزايا الإضافية، والأساس يبقى معك.', 'وإذا حبيت تكمل بالكتابة والملاحظات والشرح المبسط وكود الأسئلة، تقدر تشترك من صفحة الاشتراك.'], 'وش الفرق؟', 'تمام');
       }
     } else if (trialEnded && !lsGet(k + 'e')) {
       lsSet(k + 'e', '1');
-      tzOpen('شكراً إنك جرّبتنا 💙', ['انتهت تجربتك المجانية. ملاحظاتك وكتابتك محفوظة وتقدر تشوفها وقتما تبي، والترجمة وحفظ الكلمات باقيين معك مجاناً.', 'وإذا حبّيت تكمل الكتابة والملاحظات والشرح المبسط وكود الأسئلة، نرحّب فيك بالاشتراك.'], 'شوف الاشتراك', 'تمام');
+      tzOpen('انتهت فترة المزايا الإضافية 🎁', ['الترجمة وحفظ الكلمات باقية معك، وملاحظاتك وكتابتك محفوظة.', 'وإذا حبيت ترجع لها، تقدر تشترك من صفحة الاشتراك.'], 'وش الفرق؟', 'تمام');
     }
+  }
+
+  /* ---------- one device per account ---------- */
+  var DEV = (function () { var d = lsGet('tz_dev'); if (!d) { d = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : 'd' + Date.now() + Math.random().toString(36).slice(2); lsSet('tz_dev', d); } return d; })();
+  var freshLogin = false, devTimer = null, devKicked = false;
+  function devClaim() { return sb.from('active_device').upsert({ user_id: uid, device_id: DEV, updated_at: new Date().toISOString() }).then(function () {}, function () {}); }
+  function devKick() {
+    if (devKicked) return; devKicked = true; wiped = true; clearInterval(devTimer);
+    lsSet('tz_kicked', '1');
+    var go = function () { try { localStorage.removeItem(SKEY); } catch (e) {} location.reload(); };
+    sb.auth.signOut({ scope: 'local' }).then(go, go);
+  }
+  function devCheck() {
+    if (!sb || !uid || devKicked) return;
+    sb.from('active_device').select('device_id').eq('user_id', uid).maybeSingle().then(function (r) {
+      if (r.error) return;
+      if (!r.data) { devClaim(); return; }
+      if (r.data.device_id !== DEV) devKick();
+    }, function () {});
+  }
+  function devStart() {
+    if (!sb || !uid) return;
+    (freshLogin ? devClaim() : Promise.resolve(devCheck()));
+    freshLogin = false;
+    clearInterval(devTimer); devTimer = setInterval(devCheck, 60000);
+  }
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') devCheck(); });
+
+  /* ---------- reminders (iPad app only) ---------- */
+  var LN = (function () { try { var C = window.Capacitor; return C && C.isNativePlatform && C.isNativePlatform() && C.Plugins && C.Plugins.LocalNotifications || null; } catch (e) { return null; } })();
+  function lnPerm() {
+    if (!LN) return Promise.resolve(false);
+    return LN.checkPermissions().then(function (p) {
+      if (p.display === 'granted') return true;
+      if (p.display === 'denied') return false;
+      return LN.requestPermissions().then(function (q) { return q.display === 'granted'; });
+    }).catch(function () { return false; });
+  }
+  function notifSync(ask) {
+    if (!LN) return;
+    var hasExam = courses.some(function (c) { return (c.exams || []).some(function (e) { return daysTo(e.date) >= 1; }); });
+    if (!settings.daily && !hasExam) { LN.getPending().then(function (p) { if (p.notifications.length) LN.cancel({ notifications: p.notifications.map(function (n) { return { id: n.id }; }) }); }).catch(function () {}); return; }
+    (ask ? lnPerm() : LN.checkPermissions().then(function (p) { return p.display === 'granted'; })).then(function (ok) {
+      if (!ok) return;
+      return LN.getPending().then(function (p) {
+        return p.notifications.length ? LN.cancel({ notifications: p.notifications.map(function (n) { return { id: n.id }; }) }) : null;
+      }).then(function () {
+        var list = [];
+        if (settings.daily) {
+          var t = (settings.rtime || '20:00').split(':');
+          list.push({ id: 1, title: '📚 وقت المذاكرة', body: 'سلايداتك تنتظرك في تنظيم', schedule: { on: { hour: +t[0], minute: +t[1] }, allowWhileIdle: true } });
+        }
+        var k = 0;
+        courses.forEach(function (c) { (c.exams || []).forEach(function (e) {
+          var n = daysTo(e.date); if (n < 1 || k >= 60) return;
+          var p2 = e.date.split('-'), at = new Date(+p2[0], +p2[1] - 1, +p2[2] - 1, 20, 0, 0);
+          if (at.getTime() <= Date.now() + 60000) return;
+          list.push({ id: 1000 + (k++), title: '⏰ بكرة اختبار', body: (e.name || 'اختبار') + ' · ' + c.name + '، راجع سلايداتك', schedule: { at: at, allowWhileIdle: true } });
+        }); });
+        if (list.length) return LN.schedule({ notifications: list });
+      });
+    }).catch(function () {});
   }
   function enter(session) {
     uid = session.user.id; user = { id: session.user.email, method: 'mail' };
     return pullRemote().then(loadSub).then(function () {
+      devStart(); notifSync(false);
       if (!settings.name.trim()) { view = 'login'; auth.step = 'name'; renderLogin(); } else show('home');
     });
   }
@@ -1065,10 +1100,6 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
   function daysTo(ds) { var p = ds.split('-'), t = new Date(+p[0], +p[1] - 1, +p[2]), n = new Date(); n = new Date(n.getFullYear(), n.getMonth(), n.getDate()); return Math.round((t - n) / 864e5); }
   function daysLbl(n) { return n === 0 ? 'اليوم' : n === 1 ? 'غداً' : n === 2 ? 'بعد يومين' : 'بعد ' + n + (n <= 10 ? ' أيام' : ' يوماً'); }
   function dateLbl(ds) { var p = ds.split('-'); return new Date(+p[0], +p[1] - 1, +p[2]).toLocaleDateString(settings.lang === 'en' ? 'en-GB' : 'ar-u-ca-gregory-nu-latn', { day: 'numeric', month: 'long' }); }
-  courses[0].exams = [{ id: 'e1', name: 'الاختبار النهائي', date: dayStr(58) }];
-  courses[0].notes = [{ id: 'n1', text: 'انتبهوا لأعصاب الضفيرة العضدية، كل سنة تجي منها أسئلة.', ch: 1 }];
-  courses[1].exams = [{ id: 'e2', name: 'الاختبار النصفي', date: dayStr(12) }];
-  courses[1].notes = [{ id: 'n2', text: 'الدكتور قال: ركزوا على JOIN، ويجي منه سؤال في الاختبار.', ch: 2 }, { id: 'n3', text: 'ما يُطلب حفظ الأوامر المتقدمة.', ch: -1 }];
   function nextExam() {
     var best = null;
     courses.forEach(function (c) { (c.exams || []).forEach(function (e) { var n = daysTo(e.date); if (n >= 0 && (!best || n < best.n)) best = { n: n, name: e.name, co: c }; }); });
@@ -1080,10 +1111,8 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
   }
   function applyTheme() { var d = !!settings.dark; document.documentElement.setAttribute('data-theme', d ? 'dark' : 'light'); var m = document.querySelector('meta[name=theme-color]'); if (m) m.setAttribute('content', d ? '#0B1220' : '#4F46E5'); }
   function applyLang() { applyTheme();  var a = $('.app'); a.dir = settings.lang === 'en' ? 'ltr' : 'rtl'; a.lang = settings.lang; document.documentElement.lang = settings.lang; }
-  var lastStudy = { cid: 1, ch: 1 };
+  var lastStudy = null;
   var q = '', wq = '', rv = null, homeCards = '';
-  courses[0].chapters[0].done = true; courses[0].chapters[1].last = 5;
-  courses[1].chapters[0].done = true; courses[1].chapters[1].last = 3;
   function readyBadge(c) { return c.done ? '<span class="badge ok">تمت المذاكرة</span>' : c.last > 0 ? '<span class="badge busy">وصلت للسلايد ' + (c.last + 1) + '</span>' : '<span class="badge ok">جاهز</span>'; }
   function startLbl(c) { return c.done ? 'مراجعة' : c.last > 0 ? 'أكمل المذاكرة' : 'بدء المذاكرة'; }
   function doneCount(co) { return co.chapters.filter(function (c) { return c.done; }).length; }
@@ -1092,12 +1121,7 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
     c.last = S.idx; if (S.idx === stu.total - 1) c.done = true;
     lastStudy = { cid: cur().id, ch: stu.ch };
   }
-  var saved = [
-    { id: '1:ventral rami', en: 'ventral rami', ar: 'الفروع البطنية', mean: 'الفرع الأمامي من العصب الشوكي، يغذي عضلات الأطراف والجذع.', cid: 1 },
-    { id: '1:wrist drop', en: 'wrist drop', ar: 'سقوط الرسغ', mean: 'عدم القدرة على رفع الرسغ للأعلى بسبب تضرر العصب الكعبري.', cid: 1 },
-    { id: '2:where clause', en: 'where clause', ar: 'جملة WHERE', mean: 'جزء من استعلام SQL يحدد الصفوف التي تنطبق عليها شروط معينة.', cid: 2 },
-    { id: '3:target market', en: 'target market', ar: 'السوق المستهدف', mean: 'الفئة من العملاء التي يوجَّه لها المنتج أو الخدمة.', cid: 3 }
-  ];
+  var saved = [];
   var TABS = [['home', 'الرئيسية', 'home'], ['words', 'كلماتي', 'mark'], ['plan', 'الاشتراك', 'star'], ['settings', 'الإعدادات', 'gear']];
   function tabOf() { return (view === 'course' || view === 'rec' || view === 'lecture') ? 'home' : view === 'course' ? 'home' : view === 'review' ? 'words' : (view === 'pay' || view === 'manage') ? 'plan' : (view === 'help' || view === 'privacy') ? 'settings' : view; }
   function dispName() { return (settings.name || '').trim(); }
@@ -1123,7 +1147,7 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
   function cur() { return courses.filter(function (x) { return x.id === selId; })[0]; }
   function ready(c) { return !!c.file && !c.busy; }
   function chWord(n) { return n === 0 ? 'لا شباتر بعد' : n === 1 ? 'شابتر واحد' : n === 2 ? 'شابتران' : n + (n <= 10 ? ' شباتر' : ' شابتراً'); }
-  function countWord(n) { return n === 1 ? 'مادة واحدة نشطة' : n === 2 ? 'مادتان نشطتان' : n + (n <= 10 ? ' مواد نشطة' : ' مادة نشطة'); }
+  function countWord(n) { return n === 0 ? 'لا مواد بعد' : n === 1 ? 'مادة واحدة نشطة' : n === 2 ? 'مادتان نشطتان' : n + (n <= 10 ? ' مواد نشطة' : ' مادة نشطة'); }
   function fmtSize(b) { return b >= 1048576 ? (b / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(b / 1024)) + ' KB'; }
   function toast(msg) {
     var t = $('#toast');
@@ -1211,6 +1235,7 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
   }
   function homeBody() {
     var k = q.trim().toLowerCase();
+    if (!k && !courses.length) return '<section class="empty-home"><h2 class="sec-h">أضف أول مادة لك</h2><p class="sec-p">أضف مادة، وارفع سلايدات أول شابتر، وابدأ المذاكرة.</p><button class="btn primary" type="button" data-act="openModal">' + I.plus + '<span>إضافة مادة جديدة</span></button></section>';
     if (!k) return resumeHTML() + '<section><h2 class="sec-h">موادي الدراسية</h2><p class="sec-p">اضغط على مادة لفتح شباتراتها.</p><div class="grid">' + homeCards + '</div></section>';
     function row(act, attrs, t, sub) { return '<button class="srow" type="button" data-act="' + act + '" ' + attrs + '><span class="st-t"><span>' + esc(t) + '</span>' + (sub ? '<small>' + esc(sub) + '</small>' : '') + '</span>' + I.chevL + '</button>'; }
     var cs = courses.filter(function (c) { return (c.name + ' ' + (c.code || '') + ' ' + c.field).toLowerCase().indexOf(k) >= 0; });
@@ -1546,16 +1571,16 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
   function cycWord() { return cycle === 'year' ? 'سنوياً' : 'شهرياً'; }
   function renderPlan() {
     var curBadge = '<span class="badge ok">خطتك الحالية</span>';
-    var sub = trial ? '<div class="nb tzb"><span>🎁 تجربتك المجانية فعّالة: <b>' + tzWord(tzLeft()) + '</b> بكل المزايا. وبعدها ترجع للخطة المجانية، وما نحذف شيء من ملاحظاتك.</span></div>' : subscribed && plan ? '<p class="sec-p">' + (plan.cancelled ? 'تم إلغاء اشتراكك، وتقدر تستخدم مميزاته حتى ' + fullDate(plan.renews) + '.' : 'اشتراكك فعّال · ' + (plan.cycle === 'year' ? 'الخطة السنوية' : 'الخطة الشهرية') + ' · يتجدد في ' + fullDate(plan.renews) + '.') + '</p>' : '<p class="sec-p">' + (trialEnded ? 'انتهت تجربتك المجانية. ملاحظاتك وكتابتك محفوظة، واشترك لما تحب تكمل الكتابة والملاحظات.' : 'ابدأ مجاناً، واشترك لما تحتاج الكتابة والملاحظات والشرح المبسط وكود الأسئلة.') + '</p>';
+    var sub = trial ? '<div class="nb tzb"><span>🎁 <b>' + tzWord(tzLeft()) + '</b> على المزايا الإضافية. وبعدها يبقى معك الأساس، وما نحذف شي من ملاحظاتك.</span></div>' : subscribed && plan ? '<p class="sec-p">' + (plan.cancelled ? 'تم إلغاء اشتراكك، وتقدر تستخدم مميزاته حتى ' + fullDate(plan.renews) + '.' : 'اشتراكك فعّال · ' + (plan.cycle === 'year' ? 'الخطة السنوية' : 'الخطة الشهرية') + ' · يتجدد في ' + fullDate(plan.renews) + '.') + '</p>' : '<p class="sec-p">' + (trialEnded ? 'انتهت تجربتك المجانية. ملاحظاتك وكتابتك محفوظة، واشترك لما تحب تكمل الكتابة والملاحظات.' : 'ابدأ مجاناً، واشترك لما تحتاج الكتابة والملاحظات والشرح المبسط وكود الأسئلة.') + '</p>';
     function paid(cy) {
       var cur = subscribed && plan && plan.cycle === cy, yearly = cy === 'year';
       return '<article class="plan pro' + (cur ? ' on' : '') + '"><div class="pl-h"><h3>' + (yearly ? 'مشترك · سنوي' : 'مشترك · شهري') + '</h3>' + (cur ? curBadge : yearly ? '<span class="badge ok">وفّر 35%</span>' : '') + '</div>' +
         '<div><div class="price"><b>' + PRICE[cy] + '</b><span>ر.س ' + (yearly ? 'سنوياً' : 'شهرياً') + '</span></div><p class="price-n">' + (yearly ? 'يعادل نحو 12 ر.س شهرياً · ' : '') + 'شامل الضريبة.</p></div>' +
-        '<p class="price-n" style="flex:1">كل مميزات المجاني، مع الكتابة والتظليل والملاحظات على السلايد، وشرح مبسط لكل كلمة، وكود أسئلة جاهز من سلايداتك وملاحظاتك وكلماتك.</p>' +
+        '<p class="price-n" style="flex:1">كل مميزات الأساس، مع الكتابة والتظليل والملاحظات على السلايد، وشرح مبسط لكل كلمة، وكود أسئلة جاهز من سلايداتك وملاحظاتك وكلماتك.</p>' +
         (cur ? '' : '<button class="btn ' + (yearly ? 'ai' : 'primary') + '" type="button" data-act="subscribe" data-plc="' + cy + '">' + (subscribed && !trial ? 'غيّر إلى هذه الخطة' : 'اشترك الآن') + '</button>') + '</article>';
     }
     $('#view').innerHTML = '<div class="page"><section><h1 class="sec-h pg-h">الاشتراك</h1>' + sub + '</section>' +
-      '<div class="plans"><article class="plan' + (subscribed ? '' : ' on') + '"><div class="pl-h"><h3>مجاني</h3>' + (subscribed ? '' : curBadge) + '</div>' +
+      '<div class="plans"><article class="plan' + (subscribed ? '' : ' on') + '"><div class="pl-h"><h3>الأساس</h3>' + (subscribed ? '' : curBadge) + '</div>' +
       '<div class="price"><b>0</b><span>ر.س</span></div>' +
       planFeats(['رفع سلايدات كل المواد والشباتر', 'ترجمة أي كلمة بالضغط عليها', 'حفظ الكلمات ومراجعتها']) + '</article>' + paid('month') + paid('year') + '</div>' +
       (subscribed && !trial ? '<p><button class="link" type="button" data-act="manageSub">إدارة الاشتراك</button></p>' : '') + '</div>';
@@ -1632,9 +1657,11 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
       '<div class="srow"><span>لغة الترجمة</span><span class="sval">العربية</span></div>' +
       '<div class="srow"><span class="st-t"><span>إظهار ترجمة الجملة كاملة</span><small>تظهر تحت معنى المصطلح</small></span>' + sw('sentence') + '</div></div></div>' +
       '<div class="sgroup"><h2 class="sg-t">التذكيرات</h2><div class="slist">' +
-      '<div class="srow"><span class="st-t"><span>تذكير يومي بالمذاكرة</span><small>إشعار واحد في اليوم</small></span>' + sw('daily') + '</div>' +
-      (settings.daily ? '<div class="srow"><span>وقت التذكير</span><input id="rTime" type="time" value="' + esc(settings.rtime || '20:00') + '" aria-label="وقت التذكير"></div>' : '') + '</div></div>' +
-      '<div class="sgroup"><h2 class="sg-t">الاشتراك</h2><div class="slist"><button class="srow" type="button" data-act="plan"><span>خطتك الحالية</span><span class="sval">' + (trial ? 'تجربة مجانية' : subscribed ? 'مشترك' : 'مجاني') + I.chevL + '</span></button></div></div>' +
+      (LN ? '<div class="srow"><span class="st-t"><span>تذكير يومي بالمذاكرة</span><small>إشعار واحد في اليوم</small></span>' + sw('daily') + '</div>' +
+        '<div class="srow"><span class="st-t"><span>تذكير الاختبارات</span><small>يوصلك إشعار قبل كل اختبار بيوم</small></span></div>'
+        : '<div class="srow"><span class="st-t"><span>التذكيرات</span><small>متوفرة في تطبيق تنظيم على الآيباد</small></span></div>') +
+      (LN && settings.daily ? '<div class="srow"><span>وقت التذكير</span><input id="rTime" type="time" value="' + esc(settings.rtime || '20:00') + '" aria-label="وقت التذكير"></div>' : '') + '</div></div>' +
+      '<div class="sgroup"><h2 class="sg-t">الاشتراك</h2><div class="slist"><button class="srow" type="button" data-act="plan"><span>خطتك الحالية</span><span class="sval">' + (trial ? 'المزايا الإضافية' : subscribed ? 'مشترك' : 'الأساس') + I.chevL + '</span></button></div></div>' +
       '<div class="sgroup"><h2 class="sg-t">عن التطبيق</h2><div class="slist">' +
       '<button class="srow" type="button" data-act="help"><span>المساعدة والأسئلة الشائعة</span>' + I.chevL + '</button>' +
       '<button class="srow" type="button" data-act="privacy"><span>الخصوصية والشروط</span>' + I.chevL + '</button>' +
@@ -2214,7 +2241,7 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
     var go = t.closest('[data-go]');
     if (go) { navSlide(+go.dataset.go - S.idx); return; }
     var sw = t.closest('[data-sw]');
-    if (sw) { var key = sw.dataset.sw; settings[key] = !settings[key]; sw.setAttribute('aria-checked', String(!!settings[key])); if (key === 'dark') applyTheme(); save(); if (key === 'daily') renderSettings(); return; }
+    if (sw) { var key = sw.dataset.sw; settings[key] = !settings[key]; sw.setAttribute('aria-checked', String(!!settings[key])); if (key === 'dark') applyTheme(); if (key === 'daily') notifSync(!!settings.daily); save(); if (key === 'daily') renderSettings(); return; }
     var wf = t.closest('[data-wf]');
     if (wf) { wordFilter = +wf.dataset.wf; renderWords(); return; }
     document.querySelectorAll('details.kebab[open]').forEach(function (d) { if (!d.contains(t)) d.open = false; });
@@ -2276,7 +2303,7 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
     else if (act === 'addExam') { noteForm = 'exam'; noteErr = ''; renderCourse(); }
     else if (act === 'addNote') { noteForm = 'note'; noteErr = ''; renderCourse(); }
     else if (act === 'cancelNote') { noteForm = null; noteErr = ''; renderCourse(); }
-    else if (act === 'delExam') { cur().exams = cur().exams.filter(function (x) { return x.id !== a.dataset.id; }); renderCourse(); renderBar(); }
+    else if (act === 'delExam') { cur().exams = cur().exams.filter(function (x) { return x.id !== a.dataset.id; }); renderCourse(); renderBar(); notifSync(false); }
     else if (act === 'delNote') { cur().notes = cur().notes.filter(function (x) { return x.id !== a.dataset.id; }); renderCourse(); }
     else if (act === 'rquiz') startReview(false, 'quiz');
     else if (act === 'rnext') { rv.i++; rv.opts = null; rv.pick = -1; renderReview(); }
@@ -2432,7 +2459,7 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
           }
           if (r.data && r.data.session) { enter(r.data.session); } else { showE('الحساب يحتاج تأكيد البريد. عطّل خيار تأكيد البريد في إعدادات Supabase.'); }
         };
-        var doIn = function () { return sb.auth.signInWithPassword({ email: auth.id, password: pw }); };
+        var doIn = function () { freshLogin = true; return sb.auth.signInWithPassword({ email: auth.id, password: pw }); };
         var fail = function () { done({ error: { message: 'x' } }); };
         if (auth.up) {
           sb.functions.invoke('signup', { body: { email: auth.id, password: pw, terms: true } }).then(function (r) {
@@ -2475,12 +2502,12 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
     if (e.target.id === 'examForm') {
       var en = $('#exName').value.trim(), ed = $('#exDate').value;
       if (!ed) { noteErr = 'اختر تاريخ الاختبار.'; renderCourse(); return; }
-      (cur().exams = cur().exams || []).push({ id: 'e' + (++uid), name: en || 'اختبار', date: ed }); noteForm = null; noteErr = ''; renderCourse(); renderBar(); return;
+      (cur().exams = cur().exams || []).push({ id: 'e' + Date.now().toString(36) + (++noteSeq), name: en || 'اختبار', date: ed }); noteForm = null; noteErr = ''; renderCourse(); renderBar(); notifSync(true); return;
     }
     if (e.target.id === 'noteForm') {
       var nt = $('#ntText').value.trim();
       if (!nt) { noteErr = 'اكتب الملاحظة.'; renderCourse(); return; }
-      (cur().notes = cur().notes || []).push({ id: 'n' + (++uid), text: nt, ch: +$('#ntCh').value }); noteForm = null; noteErr = ''; renderCourse(); return;
+      (cur().notes = cur().notes || []).push({ id: 'n' + Date.now().toString(36) + (++noteSeq), text: nt, ch: +$('#ntCh').value }); noteForm = null; noteErr = ''; renderCourse(); return;
     }
     if (e.target.id === 'courseForm') {
       var name = $('#fName').value.trim(), code = $('#fCode').value.trim(), err = $('#fErr'), field = modalField;
@@ -2523,7 +2550,7 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
 
   document.addEventListener('input', function (e) {
     if (e.target.id === 'sName') settings.name = e.target.value;
-    if (e.target.id === 'rTime') settings.rtime = e.target.value;
+    if (e.target.id === 'rTime') { settings.rtime = e.target.value; notifSync(false); }
     if (e.target.id === 'aCode') { var dv = e.target.value.replace(/\D/g, '').slice(0, 6); e.target.value = dv; if (dv.length === 6) $('#authForm').requestSubmit(); }
     if (e.target.id === 'q') { q = e.target.value; $('#homeBody').innerHTML = homeBody(); }
     if (e.target.id === 'wq') { wq = e.target.value; $('#wlist').innerHTML = wordsList(); }
@@ -2559,7 +2586,22 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
     'تم إلغاء الاشتراك. مميزاتك مفتوحة حتى نهاية المدة.': 'Subscription cancelled. Your features stay open until the end of the period.', 'تمت إعادة تفعيل الاشتراك.': 'Subscription resumed.',
     'الإلغاء يوقف التجديد فقط، وتبقى مميزاتك مفتوحة حتى نهاية المدة المدفوعة.': 'Cancelling only stops renewal. Your features stay open until the end of the paid period.', 'عملية الاستلام في المستودع': 'Inbound Process in Warehouse', 'إدارة الاشتراك': 'Manage subscription', 'في النسخة الحقيقية تدير اشتراكك وتلغيه من هنا أو من المتجر.': 'In the real version you manage and cancel your subscription from here or from the store.',
     'هذا السلايد صورة بدون نص قابل للقراءة، فما أقدر أكتب منه أسئلة.': 'This slide is an image with no readable text, so I can’t write questions from it.', 'أسئلة هذا السلايد تُكتب بالذكاء الاصطناعي داخل الصفحة المنشورة فقط.': 'Questions for this slide are written by the AI on the published page only.', 'الذكاء الاصطناعي غير متاح لك الآن.': 'The AI isn’t available to you right now.', 'ما قدرت أكتب أسئلة لهذا السلايد. جرّب مرة ثانية.': 'Couldn’t write questions for this slide. Try again.',"تراجع": "Undo", "تعديل الاسم والرمز": "Edit name and code", "حذف المادة": "Delete course", "إعادة تسمية الشابتر": "Rename chapter", "حذف الملف": "Delete file", "حذف الشابتر": "Delete chapter", "حفظ": "Save", "خيارات": "Options", "تم حذف الملف.": "File deleted.", "تم حذف الشابتر.": "Chapter deleted.", "تم حذف المادة.": "Course deleted.", "مدة الاشتراك": "Subscription period", "شهري": "Monthly", "سنوي · وفّر 35%": "Yearly · save 35%", "ر.س": "SAR", "ر.س سنوياً": "SAR / year", "ر.س شهرياً": "SAR / month", "الأسعار شاملة الضريبة.": "Prices include VAT.", "ترجمة أي كلمة بالضغط عليها": "Translate any word by tapping it", "الخطة السنوية": "Yearly plan", "الخطة الشهرية": "Monthly plan", "إتمام الاشتراك": "Complete subscription", "الخطة": "Plan", "مشترك · سنوي": "Subscriber · yearly", "مشترك · شهري": "Subscriber · monthly", "يتجدد": "Renews", "كل سنة": "Every year", "كل شهر": "Every month", "الإجمالي (شامل الضريبة)": "Total (VAT included)", "طريقة الدفع": "Payment method", "مدى": "mada", "بطاقة Visa / Mastercard": "Visa / Mastercard card", "جارٍ الدفع…": "Processing…", "عرض تجريبي: ما يتم أي خصم فعلي ولا نطلب بيانات بطاقة هنا. في النسخة الحقيقية يتم الدفع عبر نافذة المزوّد الآمنة.": "Demo: no real charge is made and no card details are requested here. In the real version, payment goes through the provider’s secure window.", "تم الاشتراك": "You’re subscribed", "أرسلنا الإيصال إلى": "We sent the receipt to", ". ميزة كود الأسئلة مفتوحة لك الحين.": ". AI questions are now unlocked for you.", "ابدأ المذاكرة": "Start studying", "وقت التذكير": "Reminder time", "حذف الحساب": "Delete account", "اضغط مرة ثانية لتأكيد حذف الحساب وكل بياناتك": "Tap again to confirm deleting your account and all your data", "الترجمة الفورية لباقي الكلمات تحتاج تفعيل خدمة الذكاء الاصطناعي، وهي الخطوة القادمة.": "Instant translation for other words only works on the published page.", "الترجمة الفورية غير متاحة لك الآن.": "Instant translation isn’t available to you right now.", "ما قدرت أترجم الكلمة. جرّب مرة ثانية.": "Couldn’t translate the word. Try again.", "هذه الميزة للمشتركين. الـ AI يكتب لك أسئلة من أي سلايد تفتحه. يبدأ الاشتراك من 19 ر.س شهرياً.": "This feature is for subscribers. The AI writes questions from any slide you open. Subscription starts at 19 SAR a month.", "كيف أترجم كلمة؟": "How do I translate a word?", "اضغط عليها في السلايد وتظهر ترجمتها بحسب تخصص المادة، ويظهر معها شرح مبسط للمشتركين. أي كلمة في السلايد تقدر تضغط عليها.": "Tap it on the slide and its translation and simple meaning appear. You can tap any word on the slide.", "هل تتغير السلايدات؟": "Do the slides change?", "لا، تبقى السلايدات زي ما رفعتها بنفس لغتها. الترجمة تظهر فوقها بس.": "No, slides stay exactly as you uploaded them, in their original language. The translation only appears over them.", "كيف يعرف الـ AI المعنى الصحيح؟": "How does the AI know the right meaning?", "من تخصص المادة اللي تحدده عند إضافتها. نفس الكلمة تُترجم بمعنى مختلف في الطب وفي الهندسة.": "From the course field you set when adding it. The same word is translated differently in medicine and in engineering.", "كيف أحفظ كلمة؟": "How do I save a word?", "اضغط علامة الحفظ في بطاقة الترجمة، وتلقاها في صفحة كلماتي (ومعها تعريفها المبسط للمشتركين).": "Tap the save icon on the translation card and you’ll find it in My words with its simple definition.", "وش مميزات الاشتراك؟": "What does a subscription include?", "أسئلة يكتبها الـ AI من أي سلايد، مع شرح لكل إجابة.": "Questions written by the AI from any slide, with an explanation for every answer.", "الخصوصية والشروط": "Privacy & terms", "مسودة للتجربة، تُراجع مع مختص قانوني قبل الإطلاق.": "A draft for testing, to be reviewed with a legal professional before launch.", "ما نجمعه": "What we collect", "رقم جوالك أو بريدك للدخول، واسمك، والمواد والسلايدات والكلمات التي تضيفها.": "Your phone number or email to sign in, your name, and the courses, slides and words you add.", "كيف نستخدمه": "How we use it", "لعرض موادك وترجمة سلايداتك وتوليد الأسئلة لك فقط. لا نبيع بياناتك.": "Only to show your courses, translate your slides and generate questions for you. We don’t sell your data.", "سلايداتك": "Your slides", "ملفاتك خاصة بك ولا تظهر لغيرك.": "Your files are private to you and aren’t shown to anyone else.", "حذف بياناتك": "Deleting your data", "تقدر تحذف حسابك وكل بياناتك في أي وقت من الإعدادات.": "You can delete your account and all your data at any time from Settings.", "مدة": "Period", "اسمك": "Your name",  'مرحباً': 'Welcome', 'اسمك': 'Your name', 'وش اسمك؟': 'What’s your name?', 'نستخدم اسمك في الترحيب فقط.': 'We only use your name to greet you.', 'ابدأ': 'Start', 'اكتب اسمك.': 'Enter your name.',"أهلاً بك": "Welcome", "ادخل برقم جوالك أو بريدك وبنرسل لك رمز تحقق.": "Sign in with your phone number or email and we’ll send you a verification code.", "رقم الجوال": "Phone number", "البريد الإلكتروني": "Email", "إرسال رمز التحقق": "Send verification code", "اكتب بريداً إلكترونياً صحيحاً.": "Enter a valid email address.", "اكتب رقم جوال سعودي صحيح يبدأ بـ 5.": "Enter a valid Saudi mobile number starting with 5.", "أدخل رمز التحقق": "Enter the verification code", "أرسلنا رمز التحقق إلى": "We sent a 6-digit code to", "رمز التحقق": "Verification code", "تأكيد": "Confirm", "تغيير الرقم": "Change number", "تغيير البريد": "Change email", "إعادة إرسال الرمز": "Resend code", "نسخة تجريبية: الرمز دائماً 123456.": "Demo version: the code is always 123456.", "الرمز غير صحيح. جرّب مرة ثانية.": "Incorrect code. Try again.", "أرسلنا رمزاً جديداً.": "We sent a new code.", "طريقة الدخول": "Sign-in method", "الرئيسية": "Home", "كلماتي": "My words", "الاشتراك": "Subscription", "الإعدادات": "Settings", "التنقل الرئيسي": "Main navigation", "وش تبي تذاكر اليوم؟": "What do you want to study today?", "تابع من حيث وقفت": "Pick up where you left off", "أكمل المذاكرة": "Continue studying", "موادي الدراسية": "My courses", "اضغط على مادة لفتح شباتراتها.": "Tap a course to open its chapters.", "إضافة مادة جديدة": "Add a new course", "ابحث في موادك وشباتراتك وكلماتك": "Search your courses, chapters and words", "بحث": "Search", "المواد": "Courses", "الطب": "Medicine", "علوم الحاسب": "Computer Science", "إدارة الأعمال": "Business", "الهندسة": "Engineering", "القانون": "Law", "أخرى": "Other", "اسم المادة": "Course name", "رمز المادة": "Course code", "اختياري": "Optional", "تخصص المادة": "Course field", "الـ AI يعتمد على التخصص عشان يترجم المصطلحات بمعناها الصحيح، مثل stress في الطب وفي الهندسة.": "The AI uses the field to translate terms with the right meaning, like “stress” in medicine vs. engineering.", "اكتب التخصص أو أي شي يساعد الـ AI يفهم المادة": "Write the field or anything that helps the AI understand the course", "كلما كان أقرب لموضوع المادة، كانت ترجمة المصطلحات أدق.": "The closer it is to the course topic, the more accurate the translations.", "إضافة المادة": "Add course", "إلغاء": "Cancel", "إغلاق": "Close", "مثال: علم التشريح والأنسجة": "e.g. Anatomy and Histology", "مثال: علم النفس، الكيمياء الحيوية": "e.g. Psychology, Biochemistry", "اكتب اسم المادة.": "Enter the course name.", "اختر تخصص المادة.": "Choose the course field.", "اكتب التخصص أو أي وصف يساعد الـ AI يفهم المادة.": "Write the field or any description that helps the AI understand the course.", "تمت إضافة المادة. أضف الشابتر الأول.": "Course added. Add the first chapter.", "موادي": "My courses", "ملاحظات وتنبيهات": "Notes & reminders", "سجّل كلام الدكتور ومواعيد الاختبارات، ونذكّرك فيها وإنت تذاكر.": "Record what the lecturer said and your exam dates, and we’ll remind you while you study.", "الاختبارات": "Exams", "+ موعد اختبار": "+ Exam date", "ملاحظات الدكتور": "Lecturer notes", "+ ملاحظة": "+ Note", "ما أضفت مواعيد اختبارات بعد.": "No exam dates added yet.", "مثلاً: «الدكتور قال ركزوا على هذا السلايد».": "e.g. “The lecturer said focus on this slide.”", "كل المادة": "Whole course", "انتهى": "Passed", "الشباتر": "Chapters", "الكل": "All", "مرتبة من الأول إلى الأخير. ارفع سلايدات كل شابتر، ثم ابدأ المذاكرة.": "In order, first to last. Upload each chapter’s slides, then start studying.", "شابتر جديد": "New chapter", "الشابتر": "Chapter", "تمت المذاكرة": "Studied", "جاهز": "Ready", "قيد القراءة": "Reading", "بانتظار السلايدات": "Waiting for slides", "ارفع ملف السلايدات (PDF أو PPTX) لهذا الشابتر.": "Upload the slides file (PDF or PPTX) for this chapter.", "الـ AI يقرأ السلايدات…": "The AI is reading the slides…", "رفع السلايدات": "Upload slides", "استبدال الملف": "Replace file", "ارفع نسخة جديدة من الملف بدل الحالي": "Upload a new version of the file to replace the current one", "مراجعة": "Review", "بدء المذاكرة": "Start studying", "حذف": "Delete", "إضافة": "Add", "الملاحظة": "Note", "مثلاً: الدكتور قال ركزوا على هذا، يجي في الاختبار": "e.g. The lecturer said focus on this, it will be in the exam", "اسم الاختبار": "Exam name", "اسم الاختبار (نصفي، نهائي، كويز…)": "Exam name (midterm, final, quiz…)", "تاريخ الاختبار": "Exam date", "اكتب الملاحظة.": "Write the note.", "اختر تاريخ الاختبار.": "Pick the exam date.", "اسم الشابتر": "Chapter name", "اكتب اسم الشابتر.": "Enter the chapter name.", "ما فيه شباتر في هذه المادة. أضف الشابتر الأول وبعدها ارفع سلايداته.": "There are no chapters in this course. Add the first chapter, then upload its slides.", "هذا الملف غير مدعوم. ارفع ملف PDF أو PPTX.": "This file isn’t supported. Upload a PDF or PPTX file.", "حجم الملف أكبر من 60 ميجابايت. جرّب ملفاً أصغر.": "The file is larger than 60 MB. Try a smaller one.", "يقرأ السلايد…": "Reading the slide…", "اضغط على أي مصطلح تحته خط لترجمته": "Tap any underlined term to translate it", "ملاحظاتك لهذا الشابتر": "Your notes for this chapter", "السابق": "Previous", "التالي": "Next", "اطلب أسئلة من السلايد": "Ask for questions from this slide", "للمشتركين": "Subscribers", "رجوع إلى الشباتر": "Back to chapters", "رقم السلايد": "Slide number", "السلايد": "Slide", "كل السلايدات": "All slides", "حفظ في كلماتي": "Save to my words", "إزالة من كلماتي": "Remove from my words", "إغلاق الترجمة": "Close translation", "تم حفظ الكلمة في كلماتي.": "Word saved to My words.", "الجملة كاملة": "Full sentence", "أسئلة من السلايد": "Questions from the slide", "رجوع للترجمة": "Back to translation", "رجوع": "Back", "يكتب الذكاء الاصطناعي 3 أسئلة من محتوى السلايد…": "The AI is writing 3 questions from the slide…", "إجابة صحيحة.": "Correct.", "إجابة غير صحيحة.": "Incorrect.", "السؤال التالي": "Next question", "عرض النتيجة": "See result", "ممتاز، فهمت السلايد كاملاً.": "Excellent, you understood the whole slide.", "جيد. راجع المصطلحات اللي أخطأت فيها.": "Good. Review the terms you got wrong.", "راجع السلايد وجرّب مرة ثانية.": "Review the slide and try again.", "إعادة المحاولة": "Try again", "هذه الميزة للمشتركين. الـ AI يكتب لك أسئلة من أي سلايد تفتحه.": "This feature is for subscribers. The AI writes questions from any slide you open.", "عرض الاشتراك": "View subscription", "الكلمات التي تحفظها أثناء المذاكرة.": "Words you save while studying.", "بطاقات": "Flashcards", "اختبرني": "Quiz me", "ما حفظت كلمات بعد. أثناء المذاكرة اضغط على علامة الحفظ في بطاقة الترجمة وتجمع كلماتك هنا لمراجعتها.": "You haven’t saved any words yet. While studying, tap the save icon on the translation card and your words will collect here for review.", "ما لقيت كلمة تطابق بحثك.": "No word matches your search.", "ابحث في كلماتك": "Search your words", "بحث في كلماتي": "Search my words", "تصفية حسب المادة": "Filter by course", "حذف الكلمة": "Delete word", "حذف من كلماتي": "Remove from my words", "اضغط لإظهار المعنى": "Tap to show the meaning", "اقلب البطاقة": "Flip card", "ما عرفتها": "Didn’t know it", "عرفتها": "Knew it", "إيش معنى هذه الكلمة؟": "What does this word mean?", "صح!": "Correct!", "النتيجة": "Result", "ممتاز! عرفت كل الكلمات.": "Excellent! You knew every word.", "أعد الكلمات اللي نسيتها": "Redo the words you missed", "رجوع إلى كلماتي": "Back to my words", "ابدأ مجاناً، وفعّل الاشتراك لما تحتاج أسئلة الـ AI.": "Start free, and subscribe when you need AI questions.", "اشتراكك فعّال، ومميزات الـ AI كلها مفتوحة لك.": "Your subscription is active and all AI features are unlocked.", "مجاني": "Free", "مشترك": "Subscriber", "خطتك الحالية": "Your current plan", "رفع سلايدات كل المواد والشباتر": "Upload slides for all courses and chapters", "ترجمة أي مصطلح بالضغط عليه": "Translate any term by tapping it", "حفظ الكلمات ومراجعتها": "Save and review words", "كل مميزات الخطة المجانية": "Everything in the free plan", "أسئلة يكتبها الـ AI من أي سلايد": "AI-written questions from any slide", "شرح لكل إجابة بعد كل سؤال": "An explanation after every answer", "اشترك الآن": "Subscribe now", "تم تفعيل الاشتراك (تجريبي).": "Subscription activated (demo).", "تم إلغاء الاشتراك (تجريبي).": "Subscription cancelled (demo).", "الحساب": "Account", "الاسم": "Name", "اللغة": "Language", "العربية": "Arabic", "الترجمة": "Translation", "لغة الترجمة": "Translation language", "إظهار ترجمة الجملة كاملة": "Show the full-sentence translation", "تظهر تحت معنى المصطلح": "Appears under the term’s meaning", "التذكيرات": "Reminders", "تذكير يومي بالمذاكرة": "Daily study reminder", "إشعار واحد في اليوم": "One notification a day", "عن التطبيق": "About", "المساعدة والأسئلة الشائعة": "Help & FAQ", "الخصوصية والشروط": "Privacy & terms", "الإصدار": "Version", "0.1 تجريبي": "0.1 demo", "تسجيل الخروج": "Log out", "هذه الصفحة تُضاف لاحقاً.": "This page will be added later.", "الاختبار النصفي": "Midterm exam", "الاختبار النهائي": "Final exam", "علم التشريح والأنسجة": "Anatomy and Histology", "قواعد البيانات ونظم المعلومات": "Databases and Information Systems", "مبادئ إدارة الأعمال والتسويق": "Principles of Business and Marketing", "هندسة البرمجيات وتصميم النظم": "Software Engineering and Systems Design", "الجهاز العضلي والهيكلي": "Musculoskeletal System", "تشريح الأطراف العلوية والضفيرة العصبية": "Upper Limb Anatomy and the Brachial Plexus", "الجهاز الدوري والأوعية الدموية": "Circulatory System and Blood Vessels", "الأعصاب القحفية وجذع الدماغ": "Cranial Nerves and Brainstem", "مقدمة في قواعد البيانات": "Introduction to Databases", "نموذج الكيانات والعلاقات": "Entity-Relationship Model", "لغة SQL": "SQL Language", "التطبيع": "Normalization", "إدارة المعاملات": "Transaction Management", "مفاهيم الإدارة": "Management Concepts", "المزيج التسويقي": "Marketing Mix", "سلوك المستهلك": "Consumer Behavior", "تجزئة السوق": "Market Segmentation", "مقدمة في هندسة البرمجيات": "Introduction to Software Engineering", "تحليل المتطلبات": "Requirements Analysis", "نمذجة UML": "UML Modeling", "أنماط التصميم": "Design Patterns", "اختبار البرمجيات": "Software Testing", "إدارة المشاريع": "Project Management", "الصيانة والتطوير": "Maintenance and Evolution", "انتبهوا لأعصاب الضفيرة العضدية، كل سنة تجي منها أسئلة.": "Watch the brachial plexus nerves, questions come from them every year.", "الدكتور قال: ركزوا على JOIN، ويجي منه سؤال في الاختبار.": "The lecturer said: focus on JOIN, there will be a question on it in the exam.", "ما يُطلب حفظ الأوامر المتقدمة.": "You don’t need to memorize the advanced commands."};
-  Object.assign(EN, { 'المظهر': 'Appearance', 'الوضع الداكن': 'Dark mode', 'مريح للعين في الليل': 'Easy on the eyes at night',
+  Object.assign(EN, { 'تذكير الاختبارات': 'Exam reminders', 'يوصلك إشعار قبل كل اختبار بيوم': 'You get a notification the day before each exam', 'التذكيرات': 'Reminders', 'متوفرة في تطبيق تنظيم على الآيباد': 'Available in the Tanzeem iPad app',
+    'تم تسجيل الدخول لحسابك من جهاز آخر، فطلعناك من هذا الجهاز.': 'Your account was signed in on another device, so you were signed out here.',
+    'ارفع سلايداتك (PDF أو بوربوينت) وتظهر لك مثل ما هي.': 'Upload your slides (PDF or PowerPoint) and they appear exactly as they are.', 'اضغط على أي مصطلح وتطلع ترجمته حسب تخصصك، مع شرح مبسط.': 'Tap any term to get its translation for your field, with a simple explanation.',
+    'اكتب وظلّل على السلايد، وكل شي ينحفظ.': 'Write and highlight on the slide, and everything is saved.', 'دفتر ملاحظات جنب كل سلايد.': 'A notes pad next to every slide.', 'احفظ الكلمات الجديدة وراجعها وقت المذاكرة.': 'Save new words and review them while studying.', 'كود أسئلة جاهز من محاضرتك.': 'A ready question prompt from your lecture.', '🎁 الأساس معك دائماً، و': '🎁 The basics are always yours, and', 'على المزايا الإضافية': 'of extra features left', '🎁 الأساس معك دائماً، والمزايا الإضافية': '🎁 The basics are always yours, and extra features', 'تنتهي اليوم': 'end today', 'وش الفرق؟': 'What’s the difference?',
+    '🎁 الأساس معك دائماً. انتهت فترة المزايا الإضافية، وملاحظاتك وكتابتك محفوظة.': '🎁 The basics are always yours. Your extra-features period has ended, and your notes and writing are saved.',
+    'انتهت فترة المزايا الإضافية. وإذا حبيت ترجع لها، تقدر تشترك.': 'Your extra-features period has ended. Subscribe if you want them back.', 'تقدر تفتحها بالاشتراك.': 'You can unlock it with a subscription.',
+    'ابدأ بإضافة أول مادة لك.': 'Start by adding your first course.', 'يلا نبدأ': 'Let’s start',
+    'كيف ماشية الأمور؟ 🎁': 'How’s it going? 🎁', 'باقي لك أيام على المزايا الإضافية، وكل اللي تكتبه وتظلله محفوظ عندك.': 'You still have a few days of extra features, and everything you write and highlight is saved.',
+    'وبعدها يبقى معك الأساس: رفع السلايدات، وترجمة المصطلحات، وحفظ الكلمات.': 'After that, the basics stay: uploading slides, translating terms and saving words.',
+    'قربت نهاية المزايا الإضافية 🎁': 'Extra features end soon 🎁', 'بعد أيام قليلة تنتهي المزايا الإضافية. بعدها تبقى معك الترجمة وحفظ الكلمات، وكل اللي كتبته وظللته يظل محفوظ وتقدر تشوفه.': 'Extra features end in a few days. Translation and saved words stay, and everything you wrote and highlighted stays saved and viewable.',
+    'آخر يوم للمزايا الإضافية 🎁': 'Last day of extra features 🎁', 'قريب تنتهي المزايا الإضافية، والأساس يبقى معك.': 'Extra features end soon, and the basics stay with you.',
+    'وإذا حبيت تكمل بالكتابة والملاحظات والشرح المبسط وكود الأسئلة، تقدر تشترك من صفحة الاشتراك.': 'To keep writing, notes, simple explanations and the question code, you can subscribe from the subscription page.',
+    'انتهت فترة المزايا الإضافية 🎁': 'Extra features have ended 🎁', 'الترجمة وحفظ الكلمات باقية معك، وملاحظاتك وكتابتك محفوظة.': 'Translation and saved words stay with you, and your notes and writing are saved.',
+    'وإذا حبيت ترجع لها، تقدر تشترك من صفحة الاشتراك.': 'If you want them back, you can subscribe from the subscription page.',
+    'على المزايا الإضافية. وبعدها يبقى معك الأساس، وما نحذف شي من ملاحظاتك.': 'of extra features left. After that the basics stay, and nothing is deleted from your notes.',
+    'الأساس': 'Basics', 'المزايا الإضافية': 'Extra features', 'لا مواد بعد': 'No courses yet', 'أضف أول مادة لك': 'Add your first course', 'أضف مادة، وارفع سلايدات أول شابتر، وابدأ المذاكرة.': 'Add a course, upload the first chapter’s slides and start studying.', 'المظهر': 'Appearance', 'الوضع الداكن': 'Dark mode', 'مريح للعين في الليل': 'Easy on the eyes at night',
     'إغلاق': 'Close',
     'نجهّز الشكل الأصلي للسلايدات، يأخذ دقيقة تقريباً.': 'Preparing the original look of the slides, about a minute.',
     'جهّزنا الشكل الأصلي.': 'The original look is ready.',
@@ -2600,7 +2642,7 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
     '🎁 تجربتك المجانية فعّالة:': '🎁 Your free trial is active:', 'بكل المزايا. وبعدها ترجع للخطة المجانية، وما نحذف شيء من ملاحظاتك.': 'with every feature. After that you return to the free plan, and none of your notes are deleted.',
     'انتهت تجربتك المجانية. ملاحظاتك وكتابتك محفوظة، واشترك لما تحب تكمل الكتابة والملاحظات.': 'Your free trial has ended. Your notes and writing are saved; subscribe when you want to continue writing and taking notes.',
     'ابدأ مجاناً، واشترك لما تحتاج الكتابة والملاحظات والشرح المبسط وكود الأسئلة.': 'Start free, and subscribe when you need writing, notes, simple explanations and the question code.',
-    'كل مميزات المجاني، مع الكتابة والتظليل والملاحظات على السلايد، وشرح مبسط لكل كلمة، وكود أسئلة جاهز من سلايداتك وملاحظاتك وكلماتك.': 'Everything in Free, plus writing, highlighting and notes on slides, a simple explanation for every word, and a ready question code from your slides, notes and words.',
+    'كل مميزات الأساس، مع الكتابة والتظليل والملاحظات على السلايد، وشرح مبسط لكل كلمة، وكود أسئلة جاهز من سلايداتك وملاحظاتك وكلماتك.': 'Everything in Free, plus writing, highlighting and notes on slides, a simple explanation for every word, and a ready question code from your slides, notes and words.',
     'تجربة مجانية': 'Free trial',
     'الكتابة في الملاحظات للمشتركين. ملاحظاتك القديمة تظهر هنا للقراءة.': 'Writing notes is for subscribers. Your older notes appear here to read.',
     'شرح مبسط بالعربي تحت ترجمة كل كلمة، وزر «كود الأسئلة»: ننسخ لك كوداً جاهزاً من سلايداتك وملاحظاتك وكلماتك المحفوظة، تلصقه في أي ذكاء اصطناعي (ChatGPT أو Claude أو Gemini) ويسألك من مادتك أنت، ويشرح لك الإجابات بالعربي. والكتابة والتظليل والملاحظات على السلايد. وأول ما تسجّل تاخذ تجربة مجانية 10 أيام بكل المزايا، وبعدها تبقى لك المزايا المجانية: رفع السلايدات، ترجمة أي كلمة بحسب تخصص المادة (بدون الشرح المبسط)، وحفظ الكلمات ومراجعتها. وكل شيء كتبته يبقى محفوظ وتقدر تشوفه. ونخطط نضيف مزايا جديدة للمشتركين مع الوقت، مثل تسجيل المحاضرات.': 'A simple Arabic explanation under every word’s translation, plus a “Question prompt” button: it copies a ready-made prompt built from your slides, notes and saved words that you paste into any AI (ChatGPT, Claude or Gemini), and it quizzes you from your own material and explains the answers in Arabic. Also writing, highlighting and notes on slides. When you sign up you get a 10-day free trial with every feature, and afterwards the free features stay: uploading slides, translating any word by course field (without the simple explanation), and saving and reviewing words. Everything you wrote stays saved and you can still view it. We plan to add new features for subscribers over time, such as lecture recording.',
@@ -2737,7 +2779,7 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
   setInterval(save, 1500);
   user = null; view = 'login';
   if (sb) sb.auth.onAuthStateChange(function (ev, se) { if (ev === 'PASSWORD_RECOVERY') { recovering = true; view = 'login'; auth.step = 'newpw'; renderLogin(); return; } if (ev === 'SIGNED_IN' && !recovering && se && se.user && uid !== se.user.id) enter(se); });
-  var boot = function () { if (settings.lang === 'en') setLang('en'); else render(); };
+  var boot = function () { if (settings.lang === 'en') setLang('en'); else render(); if (lsGet('tz_kicked')) { try { localStorage.removeItem('tz_kicked'); } catch (e) {} setTimeout(function () { toast('تم تسجيل الدخول لحسابك من جهاز آخر، فطلعناك من هذا الجهاز.'); }, 400); } };
   if (sb) {
     sb.auth.getSession().then(function (r) {
       var se = r && r.data && r.data.session;
