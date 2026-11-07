@@ -23,12 +23,15 @@ workflows:
           npx @capacitor/assets generate --ios --iconBackgroundColor '#0B3B2E' --splashBackgroundColor '#0B3B2E' --splashBackgroundColorDark '#0B3B2E'
       - name: Copy web files into the app
         script: npx cap sync ios
-      - name: iPad only, Arabic name, no export-compliance prompt
+      - name: iPad only, iOS 15+, Arabic name, no export-compliance prompt
         script: |
           PLIST=ios/App/App/Info.plist
           /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName تنظيم" "$PLIST" 2>/dev/null || /usr/libexec/PlistBuddy -c "Add :CFBundleDisplayName string تنظيم" "$PLIST"
           /usr/libexec/PlistBuddy -c "Add :ITSAppUsesNonExemptEncryption bool false" "$PLIST" 2>/dev/null || true
           sed -i '' 's/TARGETED_DEVICE_FAMILY = "1,2"/TARGETED_DEVICE_FAMILY = 2/g' ios/App/App.xcodeproj/project.pbxproj
+          sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = 1[0-4]\.0;/IPHONEOS_DEPLOYMENT_TARGET = 15.0;/g' ios/App/App.xcodeproj/project.pbxproj
+          sed -i '' "s/platform :ios, '1[0-4]\.0'/platform :ios, '15.0'/" ios/App/Podfile
+          cd ios/App && pod install && cd ../..
       - name: Signing
         script: xcode-project use-profiles
       - name: Build number
