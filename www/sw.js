@@ -8,5 +8,5 @@ self.addEventListener('fetch', function (e) {
   e.respondWith(fetch(r).then(function (res) {
     if (res && res.ok) { var cp = res.clone(); caches.open(C).then(function (c) { c.put(r, cp); }); }
     return res;
-  }).catch(function () { return caches.match(r).then(function (m) { return m || (r.mode === 'navigate' ? caches.match('./') : undefined) || Response.error(); }); }));
+  }).catch(function () { return caches.match(r).then(function (m) { return m || (r.mode === 'navigate' ? caches.match('app.html') : undefined) || Response.error(); }); }));
 });
