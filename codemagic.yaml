@@ -1,0 +1,44 @@
+workflows:
+  ios-testflight:
+    name: Tanzeem iPad to TestFlight
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+    integrations:
+      app_store_connect: Tanzeem ASC Key
+    environment:
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: sa.tanzeem.app
+      node: 20
+      xcode: latest
+      cocoapods: default
+    scripts:
+      - name: Install packages
+        script: npm install
+      - name: Create iOS project (first run only)
+        script: |
+          if [ ! -d ios ]; then npx cap add ios; fi
+      - name: App icon and splash
+        script: |
+          npx @capacitor/assets generate --ios --iconBackgroundColor '#0B3B2E' --splashBackgroundColor '#0B3B2E' --splashBackgroundColorDark '#0B3B2E'
+      - name: Copy web files into the app
+        script: npx cap sync ios
+      - name: iPad only, Arabic name, no export-compliance prompt
+        script: |
+          PLIST=ios/App/App/Info.plist
+          /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName تنظيم" "$PLIST" 2>/dev/null || /usr/libexec/PlistBuddy -c "Add :CFBundleDisplayName string تنظيم" "$PLIST"
+          /usr/libexec/PlistBuddy -c "Add :ITSAppUsesNonExemptEncryption bool false" "$PLIST" 2>/dev/null || true
+          sed -i '' 's/TARGETED_DEVICE_FAMILY = "1,2"/TARGETED_DEVICE_FAMILY = 2/g' ios/App/App.xcodeproj/project.pbxproj
+      - name: Signing
+        script: xcode-project use-profiles
+      - name: Build number
+        script: |
+          cd ios/App && agvtool new-version -all $(($BUILD_NUMBER + 1))
+      - name: Build the app
+        script: xcode-project build-ipa --workspace ios/App/App.xcworkspace --scheme App
+    artifacts:
+      - build/ios/ipa/*.ipa
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true

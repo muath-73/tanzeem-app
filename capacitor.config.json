@@ -1,0 +1,9 @@
+{
+  "appId": "sa.tanzeem.app",
+  "appName": "تنظيم",
+  "webDir": "www",
+  "ios": {
+    "contentInset": "never",
+    "backgroundColor": "#0B3B2E"
+  }
+}
