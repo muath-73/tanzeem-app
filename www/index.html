@@ -607,6 +607,56 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
 @media (prefers-reduced-motion: reduce) { .wave.on i, .rbar i { animation: none; } }
 </style>
 
+<!-- Opening animation: a self-contained overlay shown once when the app opens. It only draws on top and removes itself; it does not touch the app's state or screens. -->
+<style>
+#tzs{position:fixed;inset:0;z-index:2147483000;background:#0B3B2E;overflow:hidden;direction:rtl;font-family:'IBM Plex Sans Arabic',system-ui,'Segoe UI',Tahoma,sans-serif;transition:opacity .35s ease;cursor:pointer;-webkit-tap-highlight-color:transparent}
+#tzs.out{opacity:0;pointer-events:none}
+#tzs .b{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;width:90%}
+#tzs .m{width:min(22vw,22vh,120px);height:min(22vw,22vh,120px)}
+#tzs .m path{fill:none;stroke:#E5C26A;stroke-width:7;stroke-linecap:round;stroke-dasharray:140;stroke-dashoffset:140;animation:tzsDraw .7s cubic-bezier(.6,0,.2,1) forwards}
+#tzs .m path:nth-child(1){animation-delay:.25s}#tzs .m path:nth-child(2){animation-delay:.45s}#tzs .m path:nth-child(3){animation-delay:.65s}#tzs .m path:nth-child(4){animation-delay:.95s;animation-duration:.5s}
+#tzs .w{font-weight:700;font-size:min(11vw,8vh,60px);color:#fff;opacity:0;filter:blur(6px);line-height:1.1;animation:tzsWord .7s ease-out 1.15s forwards}
+#tzs .t{font-size:min(4.4vw,2.6vh,20px);color:#C9D6CF;opacity:0;animation:tzsFade .6s ease-out 1.5s forwards}
+#tzs .b{animation:tzsBrandOut .45s ease-in 2.45s forwards}
+#tzs .h{position:absolute;top:calc(env(safe-area-inset-top,0px) + 6vh);right:7vw;left:7vw;opacity:0;animation:tzsFade .5s ease-out 2.95s forwards}
+#tzs .h .r{display:flex;align-items:center;gap:12px}
+#tzs .h svg{width:min(10vw,48px);height:min(10vw,48px)}
+#tzs .h b{font-size:min(7vw,34px);color:#fff}
+#tzs .h p{margin:10px 0 0;font-size:min(4.2vw,20px);color:#C9D6CF}
+#tzs .s{position:absolute;left:-30%;width:160%;height:120%;top:34%;background:#FBF6EA;transform:translateY(100%) rotate(-14deg);transform-origin:20% 0;animation:tzsSweep 1.05s cubic-bezier(.7,0,.15,1) 2.35s forwards}
+#tzs .s svg{position:absolute;bottom:calc(100% - 3px);left:0;width:100%;height:16vh;display:block}
+@keyframes tzsDraw{to{stroke-dashoffset:0}}
+@keyframes tzsWord{to{opacity:1;filter:blur(0)}}
+@keyframes tzsFade{to{opacity:1}}
+@keyframes tzsBrandOut{to{opacity:0;transform:translate(-50%,-70%) scale(.92)}}
+@keyframes tzsSweep{to{transform:translateY(0) rotate(0)}}
+</style>
+<div id="tzs" aria-hidden="true">
+  <div class="b">
+    <svg class="m" viewBox="0 9 96 96"><path d="M9 84V58A11 11 0 0 1 31 58V84"/><path d="M37 84V36A11 11 0 0 1 59 36V84"/><path d="M65 84V58A11 11 0 0 1 87 58V84"/><path d="M5 90H91"/></svg>
+    <div class="w">تنظيم</div>
+    <div class="t">سلايداتك ومحاضراتك صارت أسهل</div>
+  </div>
+  <div class="h"><div class="r"><svg viewBox="0 9 96 96" fill="none" stroke="#E5C26A" stroke-width="8" stroke-linecap="round"><path d="M9 84V58A11 11 0 0 1 31 58V84"/><path d="M37 84V36A11 11 0 0 1 59 36V84"/><path d="M65 84V58A11 11 0 0 1 87 58V84"/><path d="M5 90H91"/></svg><b>تنظيم</b></div><p id="tzsLine">مذاكرتك أرتب، وفهمك أسرع.</p></div>
+  <div class="s"><svg viewBox="0 0 1000 120" preserveAspectRatio="none"><path d="M0 120 C 260 0, 620 -20, 1000 70 L1000 120 Z" fill="#FBF6EA"/></svg></div>
+</div>
+<script>
+(function () {
+  var el = document.getElementById('tzs'); if (!el) return;
+  var done = false;
+  function end() { if (done) return; done = true; el.classList.add('out'); setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 400); }
+  try { if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) { el.parentNode.removeChild(el); return; } } catch (e) {}
+  // read-only peek at the saved name, to greet someone who used the app on this device before
+  try {
+    var d = JSON.parse(localStorage.getItem('mueen.v2') || 'null');
+    var n = d && d.settings && String(d.settings.name || '').trim();
+    if (n) { var l = document.getElementById('tzsLine'); l.textContent = 'أهلاً فيك من جديد يا ' + n + ' 👋'; }
+  } catch (e) {}
+  el.addEventListener('click', end);
+  setTimeout(end, 3900);
+})();
+</script>
+
 <div class="app" dir="rtl" lang="ar">
   <header class="bar" id="bar"></header>
   <main id="view"></main>
