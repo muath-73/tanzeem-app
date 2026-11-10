@@ -13,7 +13,7 @@
 <title>تنظيم</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=Reem+Kufi:wght@500;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=Reem+Kufi:wght@500;700&family=Aref+Ruqaa:wght@700&display=swap">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="lib/slides.js"></script>
 <style>
@@ -607,6 +607,20 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
 @media (prefers-reduced-motion: reduce) { .wave.on i, .rbar i { animation: none; } }
 </style>
 
+<!-- Side note: decoration only. Shown on the home screen when the empty side space is wide enough; it can't be tapped and covers nothing. -->
+<style>
+#tzNote{display:none}
+@media (min-width:1500px){
+  body:has(#view .hero) #tzNote{display:flex}
+}
+#tzNote{position:fixed;left:0;top:0;bottom:0;width:calc((100vw - 1120px) / 2);align-items:center;justify-content:center;pointer-events:none;z-index:1}
+#tzNote .n{position:relative;width:min(78%,300px);background:#FFF3A8;padding:32px 16px 24px;transform:rotate(-3deg);border-radius:4px;text-align:center;box-shadow:0 18px 26px -16px rgba(0,0,0,.4),0 2px 4px rgba(0,0,0,.06)}
+#tzNote .n:before{content:"";position:absolute;top:-13px;left:50%;width:84px;height:26px;margin-left:-42px;background:rgba(229,194,106,.7);transform:rotate(2deg);border-radius:2px}
+#tzNote .t{font-family:'Aref Ruqaa','IBM Plex Sans Arabic',serif;font-weight:700;font-size:clamp(34px,2.6vw,46px);line-height:1.15;color:#B42318;margin-bottom:10px}
+#tzNote .m{font-family:'Aref Ruqaa','IBM Plex Sans Arabic',serif;font-weight:700;font-size:clamp(18px,1.3vw,25px);line-height:1.75;color:#2F2A16;white-space:nowrap}
+</style>
+<div id="tzNote" aria-hidden="true" dir="rtl"><div class="n"><div class="t">نصييحة</div><div class="m">لا تتحسّف على شيء<br>يختصر وقتك<br>ويريح بالك<br>وأكيييد ينظّم شغلك</div></div></div>
+
 <!-- Opening animation: a self-contained overlay shown once when the app opens. It only draws on top and removes itself; it does not touch the app's state or screens. -->
 <style>
 #tzs{position:fixed;inset:0;z-index:2147483000;background:#0B3B2E;overflow:hidden;direction:rtl;font-family:'IBM Plex Sans Arabic',system-ui,'Segoe UI',Tahoma,sans-serif;transition:opacity .35s ease;cursor:pointer;-webkit-tap-highlight-color:transparent}
@@ -1129,6 +1143,8 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
 
   /* ---------- invite friends (referrals) ---------- */
   var refInfo = null, pendingRef = '', refBusy = false;
+  // invite links look like app.html?ref=CODE; remember the code so it is already filled in on the sign-up form
+  (function () { try { var rm = /[?&]ref=([A-Za-z0-9]{3,16})(?:&|$)/.exec(location.search); if (rm) localStorage.setItem('tz_ref', rm[1].toUpperCase()); } catch (e) {} })();
   function refLoad() {
     if (!sb || !uid) return Promise.resolve();
     return Promise.resolve(sb.rpc('my_referral')).then(function (r) {
@@ -1160,7 +1176,7 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
     var q = refInfo.qualified || 0, n = q % 10, pct = Math.round(n * 10);
     var out = head +
       '<div class="ref-box"><div class="ref-code"><small>كودك</small><b dir="ltr">' + esc(refInfo.code) + '</b></div>' +
-      '<div class="ref-btns"><button class="btn" type="button" data-act="refCopy">نسخ</button><button class="btn primary" type="button" data-act="refShare">شارك الكود</button></div></div>' +
+      '<div class="ref-btns"><button class="btn" type="button" data-act="refCopy">نسخ</button><button class="btn" type="button" data-act="refLink">نسخ الرابط</button><button class="btn primary" type="button" data-act="refShare">شارك الكود</button></div></div>' +
       '<div class="ref-prog"><div class="ref-pl"><span>دعوت <b>' + n + '</b> من 10</span>' + (refInfo.rewarded ? '<small>حصلت على ' + (refInfo.rewarded === 1 ? 'سنة' : refInfo.rewarded === 2 ? 'سنتين' : refInfo.rewarded + ' سنوات') + ' مجاناً</small>' : '') + '</div><div class="ref-bar"><i style="width:' + pct + '%"></i></div></div>' +
       '<p class="ref-note">إذا سجّل 10 من أصحابك بكودك، تحصل على سنة كاملة بكل المزايا، وصاحبك ياخذ خصم على أول اشتراك. وتنحسب الدعوة أول ما يفعّل صاحبك حسابه.</p>';
     if (refInfo.can_redeem) out += '<form class="ref-redeem" id="refForm" novalidate><input id="refIn" type="text" dir="ltr" autocomplete="off" autocapitalize="characters" maxlength="16" placeholder="عندك كود دعوة؟" aria-label="كود الدعوة"><button class="btn" type="submit">تفعيل</button></form>';
@@ -1170,7 +1186,7 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
     uid = session.user.id; user = { id: session.user.email, method: 'mail' };
     return pullRemote().then(loadSub).then(function () {
       devStart(); notifSync(false); refQualify();
-      if (pendingRef) { var pr = pendingRef; pendingRef = ''; refRedeem(pr).then(refLoad); } else refLoad();
+      if (pendingRef) { var pr = pendingRef; pendingRef = ''; lsSet('tz_ref', ''); refRedeem(pr).then(refLoad); } else refLoad();
       if (!settings.name.trim()) { view = 'login'; auth.step = 'name'; renderLogin(); return; }
       if (PAY_OPEN && (location.hash === '#paid' || lsGet('tz_paying'))) {
         var fromPay = location.hash === '#paid';
@@ -1610,7 +1626,7 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
         '<form id="authForm" novalidate>' + (ph
           ? '<label>رقم الجوال<span class="phone"><span class="cc">+966</span><input id="aId" type="tel" dir="ltr" inputmode="tel" autocomplete="tel-national" placeholder="5X XXX XXXX"></span></label>'
           : '<label>البريد الإلكتروني<input id="aId" type="email" dir="ltr" inputmode="email" autocomplete="email" placeholder="name@example.com"></label>') +
-        '<label>كلمة السر<input id="aPw" type="password" dir="ltr" autocomplete="' + (auth.up ? 'new-password' : 'current-password') + '"></label>' + (auth.up ? '<label>كود الدعوة (اختياري)<input id="aRef" type="text" dir="ltr" autocomplete="off" autocapitalize="characters" maxlength="16" placeholder="مثال: AHMED27"></label>' : '') + (auth.up ? '<label class="consent"><input id="aTerms" type="checkbox"' + (auth.terms ? ' checked' : '') + '><span>أوافق على <button class="link" type="button" data-act="legalPub">الشروط وسياسة الخصوصية</button></span></label>' : '') + errP() + '<button class="btn primary" type="submit">' + (auth.up ? 'إنشاء حساب' : 'دخول') + '</button></form>' + (auth.up ? '' : '<p class="note"><button class="link" type="button" data-act="forgot">نسيت كلمة السر؟</button></p>') + '<p class="note"><button class="link" type="button" data-act="authMode">' + (auth.up ? 'عندي حساب، أبي أدخل' : 'ما عندي حساب، أبي أنشئ حساب') + '</button></p>' + (auth.up ? '' : '<p class="note">بدخولك أنت توافق على <button class="link" type="button" data-act="legalPub">الشروط وسياسة الخصوصية</button></p>') + '</div>';
+        '<label>كلمة السر<input id="aPw" type="password" dir="ltr" autocomplete="' + (auth.up ? 'new-password' : 'current-password') + '"></label>' + (auth.up ? '<label>كود الدعوة (اختياري)<input id="aRef" type="text" dir="ltr" autocomplete="off" autocapitalize="characters" maxlength="16" placeholder="مثال: AHMED27" value="' + esc(lsGet('tz_ref') || '') + '"></label>' : '') + (auth.up ? '<label class="consent"><input id="aTerms" type="checkbox"' + (auth.terms ? ' checked' : '') + '><span>أوافق على <button class="link" type="button" data-act="legalPub">الشروط وسياسة الخصوصية</button></span></label>' : '') + errP() + '<button class="btn primary" type="submit">' + (auth.up ? 'إنشاء حساب' : 'دخول') + '</button></form>' + (auth.up ? '' : '<p class="note"><button class="link" type="button" data-act="forgot">نسيت كلمة السر؟</button></p>') + '<p class="note"><button class="link" type="button" data-act="authMode">' + (auth.up ? 'عندي حساب، أبي أدخل' : 'ما عندي حساب، أبي أنشئ حساب') + '</button></p>' + (auth.up ? '' : '<p class="note">بدخولك أنت توافق على <button class="link" type="button" data-act="legalPub">الشروط وسياسة الخصوصية</button></p>') + '</div>';
     } else if (auth.step === 'newpw') {
       $('#view').innerHTML = '<div class="auth">' + top + '<div><h1>كلمة سر جديدة</h1><p>اكتب كلمة السر الجديدة لحسابك.</p></div><form id="authForm" novalidate><label>كلمة السر الجديدة<input id="aNew" type="password" dir="ltr" autocomplete="new-password"></label>' + errP() + '<button class="btn primary" type="submit">حفظ ودخول</button></form></div>';
     } else if (auth.step === 'name') {
@@ -2458,6 +2474,7 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
       }, function () { fshow('تعذّر إرسال الرابط. حاول مرة ثانية.'); });
     }
     else if (act === 'chPw') { pwOpen = true; renderSettings(); var nf = $('#oPw'); if (nf) nf.focus(); }
+    else if (act === 'refLink') { var cl = refInfo && refInfo.code; if (cl) { var lk = 'https://tanzeem.app/app.html?ref=' + encodeURIComponent(cl); try { navigator.clipboard.writeText(lk).then(function () { toast('تم نسخ رابط الدعوة.'); }, function () { toast(lk); }); } catch (er) { toast(lk); } } }
     else if (act === 'refCopy') { var cc = refInfo && refInfo.code; if (cc) { try { navigator.clipboard.writeText(cc).then(function () { toast('تم نسخ الكود.'); }, function () { toast(cc); }); } catch (er) { toast(cc); } } }
     else if (act === 'refShare') { var c2 = refInfo && refInfo.code; if (c2) { var txt = 'جرّب تطبيق تنظيم للمذاكرة: ترفع سلايداتك وتضغط على أي مصطلح تطلع لك ترجمته حسب تخصصك. سجّل بكودي ' + c2 + ' وخذ خصم على أول اشتراك.'; if (navigator.share) navigator.share({ text: txt }).catch(function () {}); else window.open('https://wa.me/?text=' + encodeURIComponent(txt), '_blank'); } }
     else if (act === 'logout') { wiped = true; var go = function () { try { localStorage.removeItem(SKEY); } catch (e) {} location.reload(); }; if (sb) sb.auth.signOut().then(go, go); else go(); }
