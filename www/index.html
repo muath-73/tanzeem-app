@@ -612,6 +612,36 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
 
 <!-- Opening animation: a self-contained overlay shown once when the app opens. It only draws on top and removes itself; it does not touch the app's state or screens. -->
 <style>
+
+/* sign-in screens: same look as the opening animation's last frame */
+.au{position:fixed;inset:0;z-index:20;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;background:#0B3B2E;direction:rtl;font-family:'IBM Plex Sans Arabic',system-ui,'Segoe UI',Tahoma,sans-serif}
+.au-h{position:absolute;top:calc(env(safe-area-inset-top,0px) + 6vh);right:7vw;left:7vw}
+.au-h .r{display:flex;align-items:center;gap:12px}
+.au-h svg{width:min(10vw,48px);height:min(10vw,48px);flex:none}
+.au-h b{font-size:min(7vw,34px);color:#fff;font-weight:700}
+.au-h p{margin:10px 0 0;font-size:min(4.2vw,20px);color:#C9D6CF}
+.au-h .au-lang{margin-inline-start:auto;background:none;border:0;color:#C9D6CF;font:500 14px var(--f-ar);padding:8px 4px;cursor:pointer}
+.au-s{position:relative;margin-top:34vh;min-height:66vh;background:#FBF6EA;padding:10vh 20px calc(env(safe-area-inset-bottom,0px) + 40px)}
+.au-s>svg{position:absolute;bottom:calc(100% - 3px);left:-30%;width:160%;height:16vh;display:block;pointer-events:none}
+.au-f{position:relative;max-width:440px;margin:0 auto;display:flex;flex-direction:column;gap:16px;color:#14231D}
+.au-f h2{margin:0 0 4px;font-size:28px;line-height:36px;font-weight:700;color:#14231D}
+.au-f .au-p{margin:0;color:#5B6A63;font:400 15px/24px var(--f-ar)}
+.au-f form{display:flex;flex-direction:column;gap:16px}
+.au-f label{display:flex;flex-direction:column;gap:8px;font:500 14px/20px var(--f-ar);color:#5B6A63}
+.au-f input{height:52px;padding:0 16px;border:1.5px solid #E3E1D6;border-radius:14px;background:#fff;color:#14231D;font:400 16px var(--f-ar)}
+.au-f input::placeholder{color:#9AA59F}
+.au-f input:focus{outline:none;border-color:#0B3B2E;box-shadow:0 0 0 3px rgba(11,59,46,.12)}
+.au-f .consent{flex-direction:row;align-items:flex-start;gap:10px;font-weight:400;color:#14231D}
+.au-f .consent input{flex:none;width:22px;height:22px;margin:1px 0 0;padding:0;accent-color:#0B3B2E}
+.au-btn{height:54px;border:0;border-radius:14px;background:#0B3B2E;color:#fff;font:600 17px var(--f-ar);cursor:pointer;margin-top:4px}
+.au-btn:active{transform:scale(.99)}
+.au-btn:focus-visible,.au-l:focus-visible,.au-h .au-lang:focus-visible{outline:3px solid #E5C26A;outline-offset:2px}
+.au-alt{margin:0;text-align:center;font:400 15px/24px var(--f-ar);color:#5B6A63}
+.au-l{background:none;border:0;padding:0 2px;font:inherit;color:#0B3B2E;font-weight:700;cursor:pointer}
+.au-sm{margin:0;text-align:center;font:400 13px/20px var(--f-ar);color:#5B6A63}
+.au-sm .au-l{font-weight:500;text-decoration:underline}
+.au-fg{align-self:flex-start;font:500 14px var(--f-ar)!important}
+.au .err{margin:0}
 #tzs{position:fixed;inset:0;z-index:2147483000;background:#0B3B2E;overflow:hidden;direction:rtl;font-family:'IBM Plex Sans Arabic',system-ui,'Segoe UI',Tahoma,sans-serif;transition:opacity .35s ease;cursor:pointer;-webkit-tap-highlight-color:transparent}
 #tzs.out{opacity:0;pointer-events:none}
 #tzs .b{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;width:90%}
@@ -1633,24 +1663,31 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
   function resendHTML() { return auth.left > 0 ? '<span class="note">إعادة الإرسال بعد ' + auth.left + ' ث</span>' : '<button class="link" type="button" data-act="resend">إعادة إرسال الرمز</button>'; }
   function errP() { return '<p class="err" id="aErr" role="alert"' + (authErr ? '' : ' hidden') + '>' + esc(authErr) + '</p>'; }
   function renderLogin() {
-    var ph = false;
-    var top = '<div class="a-top"><span class="brandrow"><span class="logo">' + LOGO + '</span><span class="brand"><b>تنظيم</b></span></span>' +
-      '<button class="link" type="button" data-lang="' + (settings.lang === 'en' ? 'ar' : 'en') + '">' + (settings.lang === 'en' ? 'العربية' : 'English') + '</button></div>';
+    var MK = '<svg viewBox="0 9 96 96" fill="none" stroke="#E5C26A" stroke-width="8" stroke-linecap="round" aria-hidden="true"><path d="M9 84V58A11 11 0 0 1 31 58V84"/><path d="M37 84V36A11 11 0 0 1 59 36V84"/><path d="M65 84V58A11 11 0 0 1 87 58V84"/><path d="M5 90H91"/></svg>';
+    var head = '<div class="au-h"><div class="r">' + MK + '<b>تنظيم</b><button class="au-lang" type="button" data-lang="' + (settings.lang === 'en' ? 'ar' : 'en') + '">' + (settings.lang === 'en' ? 'العربية' : 'English') + '</button></div><p>مذاكرتك أرتب، وفهمك أسرع.</p></div>';
+    var wrap = function (inner) { return '<div class="au">' + head + '<div class="au-s"><svg viewBox="0 0 1000 120" preserveAspectRatio="none" aria-hidden="true"><path d="M0 120 C 260 0, 620 -20, 1000 70 L1000 120 Z" fill="#FBF6EA"/></svg><div class="au-f">' + inner + '</div></div></div>'; };
+    var html;
     if (auth.step === 'id') {
-      $('#view').innerHTML = '<div class="auth">' + top + '<div><h1>أهلاً بك</h1><p>ادخل بريدك وكلمة السر.</p></div>' +
-        '' +
-        '<form id="authForm" novalidate>' + (ph
-          ? '<label>رقم الجوال<span class="phone"><span class="cc">+966</span><input id="aId" type="tel" dir="ltr" inputmode="tel" autocomplete="tel-national" placeholder="5X XXX XXXX"></span></label>'
-          : '<label>البريد الإلكتروني<input id="aId" type="email" dir="ltr" inputmode="email" autocomplete="email" placeholder="name@example.com"></label>') +
-        '<label>كلمة السر<input id="aPw" type="password" dir="ltr" autocomplete="' + (auth.up ? 'new-password' : 'current-password') + '"></label>' + (auth.up ? '<label>كود الدعوة (اختياري)<input id="aRef" type="text" dir="ltr" autocomplete="off" autocapitalize="characters" maxlength="16" placeholder="مثال: AHMED27" value="' + esc(lsGet('tz_ref') || '') + '"></label>' : '') + (auth.up ? '<label class="consent"><input id="aTerms" type="checkbox"' + (auth.terms ? ' checked' : '') + '><span>أوافق على <button class="link" type="button" data-act="legalPub">الشروط وسياسة الخصوصية</button></span></label>' : '') + errP() + '<button class="btn primary" type="submit">' + (auth.up ? 'إنشاء حساب' : 'دخول') + '</button></form>' + (auth.up ? '' : '<p class="note"><button class="link" type="button" data-act="forgot">نسيت كلمة السر؟</button></p>') + '<p class="note"><button class="link" type="button" data-act="authMode">' + (auth.up ? 'عندي حساب، أبي أدخل' : 'ما عندي حساب، أبي أنشئ حساب') + '</button></p>' + (auth.up ? '' : '<p class="note">بدخولك أنت توافق على <button class="link" type="button" data-act="legalPub">الشروط وسياسة الخصوصية</button></p>') + '</div>';
+      html = wrap('<h2>' + (auth.up ? 'إنشاء حساب' : 'تسجيل الدخول') + '</h2>' +
+        '<form id="authForm" novalidate>' +
+        '<label>الإيميل<input id="aId" type="email" dir="ltr" inputmode="email" autocomplete="email" placeholder="name@email.com"></label>' +
+        '<label>كلمة المرور<input id="aPw" type="password" dir="ltr" placeholder="••••••••" autocomplete="' + (auth.up ? 'new-password' : 'current-password') + '"></label>' +
+        (auth.up ? '' : '<button class="au-l au-fg" type="button" data-act="forgot">نسيت كلمة المرور؟</button>') +
+        (auth.up ? '<label>كود الدعوة (اختياري)<input id="aRef" type="text" dir="ltr" autocomplete="off" autocapitalize="characters" maxlength="16" placeholder="مثال: AHMED27" value="' + esc(lsGet('tz_ref') || '') + '"></label>' : '') +
+        (auth.up ? '<label class="consent"><input id="aTerms" type="checkbox"' + (auth.terms ? ' checked' : '') + '><span>أوافق على <button class="au-l" type="button" data-act="legalPub">الشروط وسياسة الخصوصية</button></span></label>' : '') +
+        errP() + '<button class="au-btn" type="submit">' + (auth.up ? 'إنشاء حساب' : 'دخول') + '</button></form>' +
+        (auth.up ? '<p class="au-alt">عندك حساب؟ <button class="au-l" type="button" data-act="authMode">سجّل دخول</button></p>'
+                 : '<p class="au-alt">ما عندك حساب؟ <button class="au-l" type="button" data-act="authMode">سجّل الحين</button></p>' +
+                   '<p class="au-sm">بدخولك أنت توافق على <button class="au-l" type="button" data-act="legalPub">الشروط وسياسة الخصوصية</button></p>'));
     } else if (auth.step === 'newpw') {
-      $('#view').innerHTML = '<div class="auth">' + top + '<div><h1>كلمة سر جديدة</h1><p>اكتب كلمة السر الجديدة لحسابك.</p></div><form id="authForm" novalidate><label>كلمة السر الجديدة<input id="aNew" type="password" dir="ltr" autocomplete="new-password"></label>' + errP() + '<button class="btn primary" type="submit">حفظ ودخول</button></form></div>';
+      html = wrap('<h2>كلمة سر جديدة</h2><p class="au-p">اكتب كلمة السر الجديدة لحسابك.</p><form id="authForm" novalidate><label>كلمة السر الجديدة<input id="aNew" type="password" dir="ltr" autocomplete="new-password"></label>' + errP() + '<button class="au-btn" type="submit">حفظ ودخول</button></form>');
     } else if (auth.step === 'name') {
-      $('#view').innerHTML = '<div class="auth">' + top + '<div><h1>وش اسمك؟</h1><p>نستخدم اسمك في الترحيب فقط.</p></div><form id="authForm" novalidate><label>الاسم<input id="aName" type="text" dir="auto" autocomplete="name"></label>' + errP() + '<button class="btn primary" type="submit">ابدأ</button></form></div>';
-      var nb = $('#aName'); if (nb) nb.focus({ preventScroll: true });
+      html = wrap('<h2>وش اسمك؟</h2><p class="au-p">نستخدم اسمك في الترحيب فقط.</p><form id="authForm" novalidate><label>الاسم<input id="aName" type="text" dir="auto" autocomplete="name"></label>' + errP() + '<button class="au-btn" type="submit">ابدأ</button></form>');
     } else {
-      $('#view').innerHTML = '<div class="auth">' + top + '<div><h1>تحقق من بريدك</h1><p>أرسلنا رابط الدخول إلى <bdi dir="ltr">' + esc(auth.id) + '</bdi>. افتحه من هذا الجهاز وتدخل مباشرة.</p></div><div class="a-row"><button class="link" type="button" data-act="authBack">تغيير البريد</button><span id="resend">' + resendHTML() + '</span></div></div>';
+      html = wrap('<h2>تحقق من بريدك</h2><p class="au-p">أرسلنا رابط الدخول إلى <bdi dir="ltr">' + esc(auth.id) + '</bdi>. افتحه من هذا الجهاز وتدخل مباشرة.</p><p class="au-alt"><button class="au-l" type="button" data-act="authBack">تغيير البريد</button> · <span id="resend">' + resendHTML() + '</span></p>');
     }
+    $('#view').innerHTML = html;
+    if (auth.step === 'name') { var nb = $('#aName'); if (nb) nb.focus({ preventScroll: true }); }
   }
 
   /* ---------- my words ---------- */
@@ -3021,7 +3058,7 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
     while ((n = w.nextNode())) if (n.__ar !== undefined) { n.nodeValue = n.__ar; n.__ar = undefined; }
     document.querySelectorAll('*').forEach(function (el) { if (el.__a) { Object.keys(el.__a).forEach(function (k) { el.setAttribute(k, el.__a[k]); }); el.__a = null; } });
   }
-  Object.assign(EN, { 'نسخ الرابط': 'Copy link', 'وفّر 47%': 'Save 47%', 'سنوي · وفّر 47%': 'Yearly · save 47%', 'يعادل نحو 13 ر.س شهرياً.': 'About SAR 13 a month.',
+  Object.assign(EN, { 'مذاكرتك أرتب، وفهمك أسرع.': 'Study more organized, understand faster.', 'تسجيل الدخول': 'Sign in', 'الإيميل': 'Email', 'كلمة المرور': 'Password', 'نسيت كلمة المرور؟': 'Forgot password?', 'ما عندك حساب؟': 'No account?', 'سجّل الحين': 'Sign up now', 'عندك حساب؟': 'Have an account?', 'سجّل دخول': 'Sign in', 'نسخ الرابط': 'Copy link', 'وفّر 47%': 'Save 47%', 'سنوي · وفّر 47%': 'Yearly · save 47%', 'يعادل نحو 13 ر.س شهرياً.': 'About SAR 13 a month.',
     'يعادل نحو 13 ر.س شهرياً. يتجدد تلقائياً كل سنة.': 'About SAR 13 a month. Renews automatically every year.', 'يتجدد تلقائياً كل شهر.': 'Renews automatically every month.',
     'عندك كوبون؟': 'Have a coupon?', 'تطبيق': 'Apply', 'إزالة': 'Remove', 'تم تطبيق الكوبون ✓': 'Coupon applied ✓', 'خصم دعوة صاحبك': 'Friend invite discount', 'كوبون': 'Coupon',
     'الكوبون غير صحيح أو منتهي.': 'That coupon isn’t valid or has expired.', 'تعذّر التحقق من الكوبون. تأكد من الإنترنت وجرّب مرة ثانية.': 'Couldn’t check the coupon. Check your connection and try again.',
