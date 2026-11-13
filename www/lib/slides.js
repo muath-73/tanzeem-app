@@ -17,7 +17,9 @@
   var pdfP = null;
   function needPdf() {
     if (pdfP) return pdfP;
-    pdfP = import(BASE + 'pdf.min.mjs').then(function (m) { m.GlobalWorkerOptions.workerSrc = BASE + 'pdf.worker.min.mjs'; return m; });
+    // the iPad app may serve .mjs with a type the browser refuses for modules, so the .js copies are tried first
+    var load = function (ext) { return import(BASE + 'pdf.min.' + ext).then(function (m) { m.GlobalWorkerOptions.workerSrc = BASE + 'pdf.worker.min.' + ext; return m; }); };
+    pdfP = load('js').catch(function () { return load('mjs'); }).catch(function (e) { pdfP = null; throw e; });
     return pdfP;
   }
 
