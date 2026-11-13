@@ -17,7 +17,12 @@ workflows:
         script: npm install
       - name: Create iOS project (first run only)
         script: |
-          if [ ! -d ios ]; then npx cap add ios; fi
+          # the purchases plugin needs iOS 15, but a new Capacitor project starts at 14, so its first pod install fails; raise the target right away
+          if [ ! -d ios ]; then npx cap add ios || true; fi
+          test -f ios/App/Podfile
+          sed -i '' "s/platform :ios, '1[0-4]\.0'/platform :ios, '15.0'/" ios/App/Podfile
+          sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = 1[0-4]\.0;/IPHONEOS_DEPLOYMENT_TARGET = 15.0;/g' ios/App/App.xcodeproj/project.pbxproj
+          grep -q "platform :ios, '15.0'" ios/App/Podfile
       - name: App icon and splash
         script: |
           npx @capacitor/assets generate --ios --iconBackgroundColor '#0B3B2E' --splashBackgroundColor '#0B3B2E' --splashBackgroundColorDark '#0B3B2E'
