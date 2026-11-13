@@ -1026,6 +1026,9 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
       return iapVerify(ids, loud);
     }, function () { if (loud) { payState = ''; if (view === 'pay') renderPay(); toast('تعذّر الاتصال بـ Apple. تأكد من الإنترنت وجرّب مرة ثانية.'); } return false; });
   }
+  // sign-out can stall inside the iPad app (it waits on the server), which froze the screen; give it a few seconds, then finish locally either way
+  function signOutSoon() { return Promise.race([sb.auth.signOut().catch(function () {}), new Promise(function (r) { setTimeout(r, 3000); })]); }
+  function clearLocal() { try { localStorage.removeItem(SKEY); Object.keys(localStorage).forEach(function (k) { if (/^sb-.*-auth-token/.test(k)) localStorage.removeItem(k); }); } catch (e) {} }
   var SKEY = 'mueen.v2';
   var SB_URL = 'https://orbzpmriclzwejtzasvh.supabase.co', SB_KEY = 'sb_publishable_akmPwkd-R0AIjAgJ9nXP9A_ryrYj-Lh';
   var sb = null, uid = null, pushT = null, pulling = false, lastSent = '', lastErrAt = 0;
@@ -2583,7 +2586,7 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
     else if (act === 'refLink') { var cl = refInfo && refInfo.code; if (cl) { var lk = 'https://tanzeem.app/app.html?ref=' + encodeURIComponent(cl); try { navigator.clipboard.writeText(lk).then(function () { toast('تم نسخ رابط الدعوة.'); }, function () { toast(lk); }); } catch (er) { toast(lk); } } }
     else if (act === 'refCopy') { var cc = refInfo && refInfo.code; if (cc) { try { navigator.clipboard.writeText(cc).then(function () { toast('تم نسخ الكود.'); }, function () { toast(cc); }); } catch (er) { toast(cc); } } }
     else if (act === 'refShare') { var c2 = refInfo && refInfo.code; if (c2) { var txt = 'جرّب تطبيق تنظيم للمذاكرة: ترفع سلايداتك وتضغط على أي مصطلح تطلع لك ترجمته حسب تخصصك. سجّل بكودي ' + c2 + ' وخذ خصم على أول اشتراك.'; if (navigator.share) navigator.share({ text: txt }).catch(function () {}); else window.open('https://wa.me/?text=' + encodeURIComponent(txt), '_blank'); } }
-    else if (act === 'logout') { wiped = true; var go = function () { try { localStorage.removeItem(SKEY); } catch (e) {} location.reload(); }; if (sb) sb.auth.signOut().then(go, go); else go(); }
+    else if (act === 'logout') { wiped = true; toast('نسجّل خروجك…'); var go = function () { clearLocal(); location.reload(); }; if (sb) signOutSoon().then(go, go); else go(); }
     else if (act === 'addExam') { noteForm = 'exam'; noteErr = ''; renderCourse(); }
     else if (act === 'addNote') { noteForm = 'note'; noteErr = ''; renderCourse(); }
     else if (act === 'cancelNote') { noteForm = null; noteErr = ''; renderCourse(); }
@@ -2640,9 +2643,9 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
       if (!delConfirm) { delConfirm = true; renderSettings(); }
       else {
         wiped = true;
-        var fin = function () { try { localStorage.removeItem(SKEY); } catch (e) {} location.reload(); };
+        var fin = function () { clearLocal(); location.reload(); };
         var failDel = function () { wiped = false; delConfirm = false; renderSettings(); toast('تعذّر حذف الحساب. حاول مرة ثانية.'); };
-        if (sb && uid) sb.functions.invoke('delete-account').then(function (r) { if (r && r.error) return failDel(); return sb.auth.signOut().then(fin, fin); }, failDel);
+        if (sb && uid) sb.functions.invoke('delete-account').then(function (r) { if (r && r.error) return failDel(); return signOutSoon().then(fin, fin); }, failDel);
         else fin();
       }
     }
@@ -2962,7 +2965,7 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
     'اكتب ملاحظاتك على هذا السلايد…': 'Write your notes for this slide…', 'وضع الكتابة: اكتب على السلايد. اضغط «كتابة» مرة ثانية للرجوع للترجمة.': 'Writing mode: write on the slide. Tap “Write” again to go back to translating.',
     'حاول مرة ثانية': 'Try again', 'يحفظ…': 'Saving…', 'تم الحفظ ✓': 'Saved ✓', 'لم يُحفظ': 'Not saved', 'تعذّر حفظ كتابتك. تأكد من الاتصال وجرّب مرة ثانية.': 'Could not save your writing. Check your connection and try again.',
     'تكبير': 'Enlarge', 'تصغير': 'Shrink', 'كود أسئلة بالذكاء الاصطناعي': 'AI question prompt', 'كود الأسئلة': 'Question prompt', 'رجوع للترجمة': 'Back to translation', 'من وين نسأل؟': 'Where should it ask from?', 'هذا السلايد': 'This slide', 'الشابتر كامل': 'Whole chapter', 'ملاحظاتي وكلماتي فقط': 'My notes and words only', 'عدد الأسئلة': 'Number of questions', 'نوع الأسئلة': 'Question type', 'اختيار من متعدد': 'Multiple choice', 'صح وخطأ': 'True / false', 'أسئلة قصيرة': 'Short answer',
-    'نسخ الكود': 'Copy prompt', 'افتح ChatGPT': 'Open ChatGPT', 'افتح Claude': 'Open Claude', 'افتح Gemini': 'Open Gemini', 'اختبار قريب': 'Exam coming up', 'نسخنا الكود. الصقه في المحادثة.': 'Prompt copied. Paste it into the chat.', 'في ChatGPT وClaude يفتح والكود جاهز. في Gemini ننسخ الكود وتلصقه أنت.': 'ChatGPT and Claude open with the prompt ready. For Gemini we copy it and you paste it.', 'الكود طويل، فننسخه لك ونفتح الموقع، وتلصقه أنت.': 'The prompt is long, so we copy it and open the site for you to paste it.', 'سجّل كلام الدكتور ومواعيد الاختبارات. إذا قرب اختبار نذكّرك فيه وإنت تذاكر.': 'Save what the professor said and your exam dates. When an exam is close, we remind you while you study.', 'تعذّر الاتصال بـ Apple. تأكد من الإنترنت وجرّب مرة ثانية.': 'Couldn’t reach Apple. Check your connection and try again.', 'معاينة الكود': 'Preview prompt',
+    'نسخ الكود': 'Copy prompt', 'افتح ChatGPT': 'Open ChatGPT', 'افتح Claude': 'Open Claude', 'افتح Gemini': 'Open Gemini', 'نسجّل خروجك…': 'Signing you out…', 'اختبار قريب': 'Exam coming up', 'نسخنا الكود. الصقه في المحادثة.': 'Prompt copied. Paste it into the chat.', 'في ChatGPT وClaude يفتح والكود جاهز. في Gemini ننسخ الكود وتلصقه أنت.': 'ChatGPT and Claude open with the prompt ready. For Gemini we copy it and you paste it.', 'الكود طويل، فننسخه لك ونفتح الموقع، وتلصقه أنت.': 'The prompt is long, so we copy it and open the site for you to paste it.', 'سجّل كلام الدكتور ومواعيد الاختبارات. إذا قرب اختبار نذكّرك فيه وإنت تذاكر.': 'Save what the professor said and your exam dates. When an exam is close, we remind you while you study.', 'تعذّر الاتصال بـ Apple. تأكد من الإنترنت وجرّب مرة ثانية.': 'Couldn’t reach Apple. Check your connection and try again.', 'معاينة الكود': 'Preview prompt',
     'ننسخ لك كوداً جاهزاً فيه سلايداتك وملاحظاتك وكلماتك المحفوظة. الصقه في أي ذكاء اصطناعي (ChatGPT أو Claude أو Gemini) وبيسألك أسئلة من مادتك أنت.': 'We copy a ready-made prompt with your slides, notes and saved words. Paste it into any AI (ChatGPT, Claude or Gemini) and it will quiz you from your own material.',
     'تم نسخ الكود. الصقه في ChatGPT أو Claude أو Gemini.': 'Prompt copied. Paste it into ChatGPT, Claude or Gemini.', 'تعذّر النسخ. افتح «معاينة الكود» وانسخه يدوياً.': 'Could not copy. Open “Preview prompt” and copy it manually.',
     'الكود طويل، فانسخه والصقه يدوياً في الذكاء الاصطناعي اللي تفضله.': 'The prompt is long, so copy it and paste it into the AI you prefer.',
