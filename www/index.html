@@ -1028,6 +1028,15 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
   }
   // sign-out can stall inside the iPad app (it waits on the server), which froze the screen; give it a few seconds, then finish locally either way
   function signOutSoon() { return Promise.race([sb.auth.signOut().catch(function () {}), new Promise(function (r) { setTimeout(r, 3000); })]); }
+  // a slide that fails to open in the iPad app is reported quietly (reason + device only, never slide content) so it can be fixed without anyone writing in
+  function reportErr(kind, e) {
+    try {
+      if (!sb || !uid) return;
+      var m = String((e && (e.message || e.name)) || e || '').slice(0, 300);
+      var pf = ((IS_NATIVE ? 'app ' : 'web ') + (navigator.userAgent || '')).slice(0, 200);
+      Promise.resolve(sb.from('app_errors').insert({ kind: kind, msg: m, platform: pf })).catch(function () {});
+    } catch (x) {}
+  }
   function clearLocal() { try { localStorage.removeItem(SKEY); Object.keys(localStorage).forEach(function (k) { if (/^sb-.*-auth-token/.test(k)) localStorage.removeItem(k); }); } catch (e) {} }
   var SKEY = 'mueen.v2';
   var SB_URL = 'https://orbzpmriclzwejtzasvh.supabase.co', SB_KEY = 'sb_publishable_akmPwkd-R0AIjAgJ9nXP9A_ryrYj-Lh';
@@ -1593,7 +1602,8 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
       if (view !== 'study') render();
       toast(hasText ? 'تم رفع ' + file.name + '. الشابتر جاهز للدراسة.' : 'تم رفع الملف، لكن ما لقيت فيه نصاً قابلاً للقراءة. قد يكون صوراً ممسوحة.');
       uploadOriginal(file, target, token, oldPath);
-    }).catch(function () {
+    }).catch(function (e) {
+      reportErr('file_read', e);
       target.file = null; target.busy = false; upErr = { ch: target, msg: 'تعذّرت قراءة الملف. تأكد أنه PDF أو PPTX سليم، وجرّب مرة ثانية.' };
       if (view === 'course') renderCourse(); else if (view !== 'study') render();
     });
@@ -2307,7 +2317,7 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
         return r.data.arrayBuffer();
       }).then(function (buf) {
         return TZ.parseBuffer(buf, tries[i][1], function (n, t) { var el = $('#ldp'); if (el) el.textContent = 'نقرأ السلايدات… ' + n + ' من ' + t; });
-      }).catch(function (e) { if (IS_NATIVE && i === 0 && c.file.pdfPath) toast('تعذّر فتح الشكل الأصلي: ' + String((e && (e.message || e.name)) || e).slice(0, 90)); if (i + 1 < tries.length) return attempt(i + 1); throw e; });
+      }).catch(function (e) { if (IS_NATIVE && i === 0 && c.file.pdfPath) reportErr('pdf_open', e); if (i + 1 < tries.length) return attempt(i + 1); throw e; });
     };
     attempt(0).then(function (slides) {
       deckCache[tok] = slides;
