@@ -2307,7 +2307,7 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
         return r.data.arrayBuffer();
       }).then(function (buf) {
         return TZ.parseBuffer(buf, tries[i][1], function (n, t) { var el = $('#ldp'); if (el) el.textContent = 'نقرأ السلايدات… ' + n + ' من ' + t; });
-      }).catch(function (e) { if (i + 1 < tries.length) return attempt(i + 1); throw e; });
+      }).catch(function (e) { if (IS_NATIVE && i === 0 && c.file.pdfPath) toast('تعذّر فتح الشكل الأصلي: ' + String((e && (e.message || e.name)) || e).slice(0, 90)); if (i + 1 < tries.length) return attempt(i + 1); throw e; });
     };
     attempt(0).then(function (slides) {
       deckCache[tok] = slides;

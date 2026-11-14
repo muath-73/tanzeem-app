@@ -18,7 +18,13 @@
   function needPdf() {
     if (pdfP) return pdfP;
     // the iPad app may serve .mjs with a type the browser refuses for modules, so the .js copies are tried first
-    var load = function (ext) { return import(BASE + 'pdf.min.' + ext).then(function (m) { m.GlobalWorkerOptions.workerSrc = BASE + 'pdf.worker.min.' + ext; return m; }); };
+    // inside the iPad app a separate worker may not start, so the worker code is loaded into the page first
+    // (pdf.js then runs it on the main thread). The website keeps the normal background worker.
+    var native = false; try { native = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()); } catch (e) {}
+    var load = function (ext) {
+      var pre = native && !window.pdfjsWorker ? import(BASE + 'pdf.worker.min.' + ext) : Promise.resolve();
+      return pre.then(function () { return import(BASE + 'pdf.min.' + ext); }).then(function (m) { m.GlobalWorkerOptions.workerSrc = BASE + 'pdf.worker.min.' + ext; return m; });
+    };
     pdfP = load('js').catch(function () { return load('mjs'); }).catch(function (e) { pdfP = null; throw e; });
     return pdfP;
   }
