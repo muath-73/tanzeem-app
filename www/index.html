@@ -1236,7 +1236,7 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
     if (!code || !sb || !uid) return Promise.resolve(null);
     return Promise.resolve(sb.rpc('redeem_referral', { p_code: code, p_device: DEV })).then(function (r) {
       var st = r && !r.error ? r.data : 'err';
-      var msg = { ok: 'تم تفعيل كود الدعوة. وبيكون لك خصم على أول اشتراك.', invalid: 'الكود غير صحيح. تأكد منه وجرّب مرة ثانية.', self: 'ما تقدر تستخدم كودك أنت.', used: 'سبق واستخدمت كود دعوة.', late: 'انتهت مدة إضافة كود الدعوة.', device: 'ما نقدر نحسب الكود من هذا الجهاز.' }[st] || 'تعذّر تفعيل الكود الحين. جرّب بعد شوي.';
+      var msg = { ok: IS_NATIVE ? 'تم تفعيل كود الدعوة.' : 'تم تفعيل كود الدعوة. وبيكون لك خصم على أول اشتراك.', invalid: 'الكود غير صحيح. تأكد منه وجرّب مرة ثانية.', self: 'ما تقدر تستخدم كودك أنت.', used: 'سبق واستخدمت كود دعوة.', late: 'انتهت مدة إضافة كود الدعوة.', device: 'ما نقدر نحسب الكود من هذا الجهاز.' }[st] || 'تعذّر تفعيل الكود الحين. جرّب بعد شوي.';
       toast(msg); refLoad(); return st;
     }, function () { toast('تعذّر تفعيل الكود الحين. جرّب بعد شوي.'); return null; });
   }
@@ -1250,7 +1250,7 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
       '<div class="ref-box"><div class="ref-code"><small>كودك</small><b dir="ltr">' + esc(refInfo.code) + '</b></div>' +
       '<div class="ref-btns"><button class="btn" type="button" data-act="refCopy">نسخ</button><button class="btn" type="button" data-act="refLink">نسخ الرابط</button><button class="btn primary" type="button" data-act="refShare">شارك الكود</button></div></div>' +
       '<div class="ref-prog"><div class="ref-pl"><span>دعوت <b>' + n + '</b> من 10</span>' + (refInfo.rewarded ? '<small>حصلت على ' + (refInfo.rewarded === 1 ? 'سنة' : refInfo.rewarded === 2 ? 'سنتين' : refInfo.rewarded + ' سنوات') + ' مجاناً</small>' : '') + '</div><div class="ref-bar"><i style="width:' + pct + '%"></i></div></div>' +
-      '<p class="ref-note">إذا سجّل 10 من أصحابك بكودك، تحصل على سنة كاملة بكل المزايا، وصاحبك ياخذ خصم على أول اشتراك. وتنحسب الدعوة أول ما يفعّل صاحبك حسابه.</p>';
+      '<p class="ref-note">' + (IS_NATIVE ? 'إذا سجّل 10 من أصحابك بكودك، تحصل على سنة كاملة بكل المزايا. وتنحسب الدعوة أول ما يفعّل صاحبك حسابه.' : 'إذا سجّل 10 من أصحابك بكودك، تحصل على سنة كاملة بكل المزايا، وصاحبك ياخذ خصم على أول اشتراك. وتنحسب الدعوة أول ما يفعّل صاحبك حسابه.') + '</p>';
     if (refInfo.can_redeem) out += '<form class="ref-redeem" id="refForm" novalidate><input id="refIn" type="text" dir="ltr" autocomplete="off" autocapitalize="characters" maxlength="16" placeholder="عندك كود دعوة؟" aria-label="كود الدعوة"><button class="btn" type="submit">تفعيل</button></form>';
     return out + '</div></div>';
   }
@@ -1926,7 +1926,7 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
     var qa = [['هل تتغير السلايدات؟', 'لا، تبقى السلايدات مثل ما رفعتها بنفس شكلها ولغتها. الترجمة تظهر فوقها فقط.'],
       ['وش مميزات الاشتراك؟', ['الشرح المبسط تحت ترجمة كل كلمة', 'الكتابة والتظليل على السلايد', 'الملاحظات بجانب السلايد', 'كود أسئلة جاهز من سلايداتك وملاحظاتك']],
       ['وش يصير بعد ما تنتهي الأيام العشرة؟', 'يبقى معك الأساس: رفع السلايدات، وترجمة أي كلمة، وحفظ الكلمات ومراجعتها. وكل شيء كتبته يبقى محفوظاً وتقدر تشوفه.'],
-      ['كيف ألغي اشتراكي؟', 'إذا اشتركت من تطبيق الآيباد، تلغيه من إعدادات حسابك في Apple، ويبقى فعّالاً حتى نهاية المدة المدفوعة. وإذا اشتركت من الموقع، فالاشتراك ما يتجدد تلقائياً أصلاً.'],
+      ['كيف ألغي اشتراكي؟', IS_NATIVE ? 'تلغيه من إعدادات حسابك في Apple، ويبقى فعّالاً حتى نهاية المدة المدفوعة.' : 'إذا اشتركت من تطبيق الآيباد، تلغيه من إعدادات حسابك في Apple، ويبقى فعّالاً حتى نهاية المدة المدفوعة. وإذا اشتركت من الموقع، فالاشتراك ما يتجدد تلقائياً أصلاً.'],
       ['هل أقدر أستخدم حسابي على أكثر من جهاز؟', 'الحساب يشتغل على جهاز واحد في نفس الوقت. إذا دخلت من جهاز جديد، يطلع الجهاز القديم تلقائياً، وموادك تنتقل معك.'],
       ['وش الملفات اللي أقدر أرفعها؟', 'ملفات PDF وPowerPoint (PPTX)، وحجم الملف حتى 50 ميجابايت.'],
       ['هل يشوف أحد ملفاتي؟', 'لا، ملفاتك وملاحظاتك خاصة بحسابك ولا يطّلع عليها غيرك.'],
@@ -2625,7 +2625,7 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
     else if (act === 'chPw') { pwOpen = true; renderSettings(); var nf = $('#oPw'); if (nf) nf.focus(); }
     else if (act === 'refLink') { var cl = refInfo && refInfo.code; if (cl) { var lk = 'https://tanzeem.app/app.html?ref=' + encodeURIComponent(cl); try { navigator.clipboard.writeText(lk).then(function () { toast('تم نسخ رابط الدعوة.'); }, function () { toast(lk); }); } catch (er) { toast(lk); } } }
     else if (act === 'refCopy') { var cc = refInfo && refInfo.code; if (cc) { try { navigator.clipboard.writeText(cc).then(function () { toast('تم نسخ الكود.'); }, function () { toast(cc); }); } catch (er) { toast(cc); } } }
-    else if (act === 'refShare') { var c2 = refInfo && refInfo.code; if (c2) { var txt = 'جرّب تطبيق تنظيم للمذاكرة: ترفع سلايداتك وتضغط على أي مصطلح تطلع لك ترجمته حسب تخصصك. سجّل بكودي ' + c2 + ' وخذ خصم على أول اشتراك.'; if (navigator.share) navigator.share({ text: txt }).catch(function () {}); else window.open('https://wa.me/?text=' + encodeURIComponent(txt), '_blank'); } }
+    else if (act === 'refShare') { var c2 = refInfo && refInfo.code; if (c2) { var txt = 'جرّب تطبيق تنظيم للمذاكرة: ترفع سلايداتك وتضغط على أي مصطلح تطلع لك ترجمته حسب تخصصك. سجّل بكودي ' + c2 + (IS_NATIVE ? '.' : ' وخذ خصم على أول اشتراك.'); if (navigator.share) navigator.share({ text: txt }).catch(function () {}); else window.open('https://wa.me/?text=' + encodeURIComponent(txt), '_blank'); } }
     else if (act === 'logout') { wiped = true; toast('نسجّل خروجك…'); var go = function () { clearLocal(); location.reload(); }; if (sb) signOutSoon().then(go, go); else go(); }
     else if (act === 'addExam') { noteForm = 'exam'; noteErr = ''; renderCourse(); }
     else if (act === 'addNote') { noteForm = 'note'; noteErr = ''; renderCourse(); }
@@ -3125,7 +3125,7 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
     while ((n = w.nextNode())) if (n.__ar !== undefined) { n.nodeValue = n.__ar; n.__ar = undefined; }
     document.querySelectorAll('*').forEach(function (el) { if (el.__a) { Object.keys(el.__a).forEach(function (k) { el.setAttribute(k, el.__a[k]); }); el.__a = null; } });
   }
-  Object.assign(EN, { 'مذاكرتك أرتب، وفهمك أسرع.': 'Study more organized, understand faster.', 'تسجيل الدخول': 'Sign in', 'الإيميل': 'Email', 'كلمة المرور': 'Password', 'نسيت كلمة المرور؟': 'Forgot password?', 'ما عندك حساب؟': 'No account?', 'سجّل الحين': 'Sign up now', 'عندك حساب؟': 'Have an account?', 'سجّل دخول': 'Sign in', 'نسخ الرابط': 'Copy link', 'وفّر 26%': 'Save 26%', 'سنوي · وفّر 47%': 'Yearly · save 47%', 'توفّر نحو 140 ر.س بالسنة مقارنة بالشهري': 'Save about 140 SAR a year compared with monthly', 'سنوي · وفّر 26%': 'Yearly · save 26%', 'يعادل نحو 13 ر.س شهرياً.': 'About SAR 13 a month.',
+  Object.assign(EN, { 'مذاكرتك أرتب، وفهمك أسرع.': 'Study more organized, understand faster.', 'تسجيل الدخول': 'Sign in', 'الإيميل': 'Email', 'كلمة المرور': 'Password', 'نسيت كلمة المرور؟': 'Forgot password?', 'ما عندك حساب؟': 'No account?', 'سجّل الحين': 'Sign up now', 'عندك حساب؟': 'Have an account?', 'سجّل دخول': 'Sign in', 'نسخ الرابط': 'Copy link', 'وفّر 26%': 'Save 26%', 'تلغيه من إعدادات حسابك في Apple، ويبقى فعّالاً حتى نهاية المدة المدفوعة.': 'Cancel it in your Apple account settings; it stays active until the end of the paid period.', 'تم تفعيل كود الدعوة.': 'Invite code applied.', 'إذا سجّل 10 من أصحابك بكودك، تحصل على سنة كاملة بكل المزايا. وتنحسب الدعوة أول ما يفعّل صاحبك حسابه.': 'When 10 friends sign up with your code, you get a full year with every feature. An invite counts once your friend activates their account.', 'سنوي · وفّر 47%': 'Yearly · save 47%', 'توفّر نحو 140 ر.س بالسنة مقارنة بالشهري': 'Save about 140 SAR a year compared with monthly', 'سنوي · وفّر 26%': 'Yearly · save 26%', 'يعادل نحو 13 ر.س شهرياً.': 'About SAR 13 a month.',
     'يعادل نحو 13 ر.س شهرياً. يتجدد تلقائياً كل سنة.': 'About SAR 13 a month. Renews automatically every year.', 'يتجدد تلقائياً كل شهر.': 'Renews automatically every month.',
     'عندك كوبون؟': 'Have a coupon?', 'تطبيق': 'Apply', 'إزالة': 'Remove', 'تم تطبيق الكوبون ✓': 'Coupon applied ✓', 'خصم دعوة صاحبك': 'Friend invite discount', 'كوبون': 'Coupon',
     'الكوبون غير صحيح أو منتهي.': 'That coupon isn’t valid or has expired.', 'تعذّر التحقق من الكوبون. تأكد من الإنترنت وجرّب مرة ثانية.': 'Couldn’t check the coupon. Check your connection and try again.',
