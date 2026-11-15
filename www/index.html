@@ -1013,6 +1013,9 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
   // iPad app: subscriptions go through Apple (StoreKit), never through the website checkout
   var NP = (function () { try { var C = window.Capacitor; return IS_NATIVE && C.Plugins && C.Plugins.NativePurchases || null; } catch (e) { return null; } })();
   var IAP_ID = { month: 'sa.tanzeem.app.monthly', year: 'sa.tanzeem.app.yearly' }, iapPrice = {};
+  // iPad: the yearly saving is worked out from Apple's own prices, so it stays right whatever Apple charges
+  function iapNum(t, d) { var n = parseFloat(String(t || '').replace(/[٠-٩]/g, function (c) { return '٠١٢٣٤٥٦٧٨٩'.indexOf(c); }).replace(/٫/g, '.').replace(/[^0-9.]/g, '')); return n > 0 ? n : d; }
+  function iapSave() { var m = iapNum(iapPrice.month, 24.99), y = iapNum(iapPrice.year, 159.99), full = m * 12; return { amt: Math.max(0, Math.round(full - y)), pct: Math.max(0, Math.round((1 - y / full) * 100)) }; }
   function iapLoad() {
     if (!NP) return Promise.resolve();
     return NP.getProducts({ productIdentifiers: [IAP_ID.month, IAP_ID.year], productType: 'subs' }).then(function (r) {
@@ -1800,7 +1803,7 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
     function paid(cy) {
       var cur = subscribed && plan && plan.cycle === cy, yearly = cy === 'year';
       return '<article class="plan pro' + (cur ? ' on' : '') + '"><div class="pl-h"><h3>' + (yearly ? 'مشترك · سنوي' : 'مشترك · شهري') + '</h3>' + (cur ? curBadge : yearly ? '<span class="badge ok">⭐ ننصحك فيه</span>' : '') + '</div>' +
-        (IS_NATIVE ? '<div><div class="price"><b dir="ltr">' + esc(iapPrice[cy] || (yearly ? '159.99 ر.س' : '18.00 ر.س')) + '</b><span>' + (yearly ? 'سنوياً' : 'شهرياً') + '</span></div><p class="price-n">' + (yearly ? 'يعادل نحو 13 ر.س شهرياً. يتجدد تلقائياً كل سنة.' : 'يتجدد تلقائياً كل شهر.') + '</p>' + (yearly ? '<p class="price-n" style="color:var(--ok,#059669);font-weight:600;margin-top:4px">توفّر أكثر من 55 ر.س بالسنة مقارنة بالشهري</p>' : '') + '</div>'
+        (IS_NATIVE ? '<div><div class="price"><b dir="ltr">' + esc(iapPrice[cy] || (yearly ? '159.99 ر.س' : '24.99 ر.س')) + '</b><span>' + (yearly ? 'سنوياً' : 'شهرياً') + '</span></div><p class="price-n">' + (yearly ? 'يعادل نحو 13 ر.س شهرياً. يتجدد تلقائياً كل سنة.' : 'يتجدد تلقائياً كل شهر.') + '</p>' + (yearly ? '<p class="price-n" style="color:var(--ok,#059669);font-weight:600;margin-top:4px">توفّر نحو ' + iapSave().amt + ' ر.س بالسنة مقارنة بالشهري</p>' : '') + '</div>'
         : '<div><div class="price"><b>' + PRICE[cy] + '</b><span>ر.س ' + (yearly ? 'سنوياً' : 'شهرياً') + '</span></div><p class="price-n">' + (yearly ? 'يعادل نحو 13 ر.س شهرياً.' : 'بدون تجديد تلقائي.') + '</p>' + (yearly ? '<p class="price-n" style="color:var(--ok,#059669);font-weight:600;margin-top:4px">توفّر أكثر من 55 ر.س بالسنة مقارنة بالشهري</p>' : '') + '</div>') +
         '<div style="flex:1">' + planFeats(['رفع سلايدات كل المواد والشباتر', 'ترجمة أي كلمة بالضغط عليها', 'حفظ الكلمات ومراجعتها', 'الشرح المبسط تحت ترجمة كل كلمة', 'الكتابة والتظليل على السلايد', 'الملاحظات بجانب السلايد', 'كود أسئلة جاهز من سلايداتك وملاحظاتك']) + '</div>' +
         '<button class="btn ' + (yearly ? 'ai' : 'primary') + '" type="button" data-act="subscribe" data-plc="' + cy + '">' + (cur ? 'جدّد اشتراكك' : subscribed && !trial ? 'غيّر إلى هذه الخطة' : 'اشترك الآن') + '</button>' + '</article>';
@@ -1820,7 +1823,7 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
     }
     if (!iapPrice.month && !iapPrice.year) iapLoad();
     var price = iapPrice[cycle] || (PRICE[cycle] + ' ر.س'), busy = payState === 'busy';
-    $('#view').innerHTML = '<div class="page narrow">' + back + '<section><h1 class="sec-h pg-h">الاشتراك</h1></section><div class="cyc" role="radiogroup" aria-label="مدة الاشتراك"><button type="button" role="radio" aria-checked="' + (cycle === 'month') + '" data-cyc="month">شهري</button><button type="button" role="radio" aria-checked="' + (cycle === 'year') + '" data-cyc="year">سنوي · وفّر 26%</button></div>' +
+    $('#view').innerHTML = '<div class="page narrow">' + back + '<section><h1 class="sec-h pg-h">الاشتراك</h1></section><div class="cyc" role="radiogroup" aria-label="مدة الاشتراك"><button type="button" role="radio" aria-checked="' + (cycle === 'month') + '" data-cyc="month">شهري</button><button type="button" role="radio" aria-checked="' + (cycle === 'year') + '" data-cyc="year">سنوي · وفّر ' + iapSave().pct + '%</button></div>' +
       '<div class="slist" style="padding:4px 16px"><div class="sumrow"><span>الخطة</span><b>' + (cycle === 'year' ? 'مشترك · سنوي' : 'مشترك · شهري') + '</b></div><div class="sumrow"><span>السعر</span><b dir="ltr">' + esc(price) + '</b></div><div class="sumrow"><span>التجديد</span><span>تلقائي ' + (cycle === 'year' ? 'كل سنة' : 'كل شهر') + '</span></div></div>' +
       '<button class="btn primary" type="button" data-act="iapBuy"' + (busy || !NP ? ' disabled' : '') + '>' + (busy ? 'جارٍ الاشتراك…' : 'اشترك عن طريق Apple') + '</button>' +
       '<button class="btn" type="button" data-act="iapRestore"' + (busy || !NP ? ' disabled' : '') + '>استرجاع المشتريات</button>' +
@@ -2091,7 +2094,7 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
   }
   function lockedHTML() {
     return '<section class="card aiq"><div class="q-head"><span class="q-title">' + I.spark + 'كود الأسئلة</span><button class="qx" type="button" data-act="back" aria-label="إغلاق"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>' +
-      '<div class="lock"><p>هذه الميزة للمشتركين. نجهّز لك كوداً من سلايداتك وملاحظاتك وكلماتك، تلصقه في أي ذكاء اصطناعي ويسألك من مادتك. يبدأ الاشتراك من ' + (IS_NATIVE ? esc(iapPrice.month || '18.00 ر.س') : PRICE.month + ' ر.س') + ' شهرياً.</p><div class="row"><button class="btn primary" type="button" data-act="tab" data-tab="plan">عرض الاشتراك</button></div></div></section>';
+      '<div class="lock"><p>هذه الميزة للمشتركين. نجهّز لك كوداً من سلايداتك وملاحظاتك وكلماتك، تلصقه في أي ذكاء اصطناعي ويسألك من مادتك. يبدأ الاشتراك من ' + (IS_NATIVE ? esc(iapPrice.month || '24.99 ر.س') : PRICE.month + ' ر.س') + ' شهرياً.</p><div class="row"><button class="btn primary" type="button" data-act="tab" data-tab="plan">عرض الاشتراك</button></div></div></section>';
   }
 
   function quizHTML() {
@@ -3122,7 +3125,7 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
     while ((n = w.nextNode())) if (n.__ar !== undefined) { n.nodeValue = n.__ar; n.__ar = undefined; }
     document.querySelectorAll('*').forEach(function (el) { if (el.__a) { Object.keys(el.__a).forEach(function (k) { el.setAttribute(k, el.__a[k]); }); el.__a = null; } });
   }
-  Object.assign(EN, { 'مذاكرتك أرتب، وفهمك أسرع.': 'Study more organized, understand faster.', 'تسجيل الدخول': 'Sign in', 'الإيميل': 'Email', 'كلمة المرور': 'Password', 'نسيت كلمة المرور؟': 'Forgot password?', 'ما عندك حساب؟': 'No account?', 'سجّل الحين': 'Sign up now', 'عندك حساب؟': 'Have an account?', 'سجّل دخول': 'Sign in', 'نسخ الرابط': 'Copy link', 'وفّر 26%': 'Save 26%', 'سنوي · وفّر 26%': 'Yearly · save 26%', 'يعادل نحو 13 ر.س شهرياً.': 'About SAR 13 a month.',
+  Object.assign(EN, { 'مذاكرتك أرتب، وفهمك أسرع.': 'Study more organized, understand faster.', 'تسجيل الدخول': 'Sign in', 'الإيميل': 'Email', 'كلمة المرور': 'Password', 'نسيت كلمة المرور؟': 'Forgot password?', 'ما عندك حساب؟': 'No account?', 'سجّل الحين': 'Sign up now', 'عندك حساب؟': 'Have an account?', 'سجّل دخول': 'Sign in', 'نسخ الرابط': 'Copy link', 'وفّر 26%': 'Save 26%', 'سنوي · وفّر 47%': 'Yearly · save 47%', 'توفّر نحو 140 ر.س بالسنة مقارنة بالشهري': 'Save about 140 SAR a year compared with monthly', 'سنوي · وفّر 26%': 'Yearly · save 26%', 'يعادل نحو 13 ر.س شهرياً.': 'About SAR 13 a month.',
     'يعادل نحو 13 ر.س شهرياً. يتجدد تلقائياً كل سنة.': 'About SAR 13 a month. Renews automatically every year.', 'يتجدد تلقائياً كل شهر.': 'Renews automatically every month.',
     'عندك كوبون؟': 'Have a coupon?', 'تطبيق': 'Apply', 'إزالة': 'Remove', 'تم تطبيق الكوبون ✓': 'Coupon applied ✓', 'خصم دعوة صاحبك': 'Friend invite discount', 'كوبون': 'Coupon',
     'الكوبون غير صحيح أو منتهي.': 'That coupon isn’t valid or has expired.', 'تعذّر التحقق من الكوبون. تأكد من الإنترنت وجرّب مرة ثانية.': 'Couldn’t check the coupon. Check your connection and try again.',
