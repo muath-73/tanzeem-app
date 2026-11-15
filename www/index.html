@@ -1824,6 +1824,7 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
       '<div class="slist" style="padding:4px 16px"><div class="sumrow"><span>الخطة</span><b>' + (cycle === 'year' ? 'مشترك · سنوي' : 'مشترك · شهري') + '</b></div><div class="sumrow"><span>السعر</span><b dir="ltr">' + esc(price) + '</b></div><div class="sumrow"><span>التجديد</span><span>تلقائي ' + (cycle === 'year' ? 'كل سنة' : 'كل شهر') + '</span></div></div>' +
       '<button class="btn primary" type="button" data-act="iapBuy"' + (busy || !NP ? ' disabled' : '') + '>' + (busy ? 'جارٍ الاشتراك…' : 'اشترك عن طريق Apple') + '</button>' +
       '<button class="btn" type="button" data-act="iapRestore"' + (busy || !NP ? ' disabled' : '') + '>استرجاع المشتريات</button>' +
+      '<a class="link" href="https://apps.apple.com/redeem?ctx=offercodes&id=6831935964" target="_blank" rel="noopener" style="align-self:center">عندك كوبون؟</a>' +
       '<p class="price-n">الدفع يتم عن طريق حساب Apple. الاشتراك يتجدد تلقائياً بنفس السعر، إلا إذا ألغيته قبل نهاية المدة بـ 24 ساعة على الأقل من إعدادات حسابك في Apple. ' +
       '<a href="https://tanzeem.app/privacy.html" target="_blank" rel="noopener">الخصوصية والشروط</a> · <a href="https://tanzeem.app/subscription-apple.html" target="_blank" rel="noopener">سياسة الاشتراك</a></p></div>';
   }
@@ -1891,8 +1892,7 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
     if (!q && payQuoteKey !== quoteKey() && payState !== 'done' && payState !== 'checking') payQuoteLoad();
     var amt = (q ? q.amount : PRICE[cycle]) + ' ر.س';
     var disc = q && q.amount < q.base ? '<div class="sumrow"><span>' + (q.kind === 'coupon' ? 'كوبون <bdi dir="ltr">' + esc(q.coupon) + '</bdi>' : 'خصم دعوة صاحبك') + '</span><span><s>' + q.base + ' ر.س</s></span></div>' : '';
-    // no public coupons any more (the invite discount still applies on its own)
-    var cpn = true ? '' : payCoupon && q && q.kind === 'coupon'
+    var cpn = cycle !== 'month' ? '' : payCoupon && q && q.kind === 'coupon'
       ? '<div class="cpn"><span>تم تطبيق الكوبون ✓</span><button class="link" type="button" data-act="cpOff">إزالة</button></div>'
       : '<form class="cpn" id="cpForm" novalidate><input id="cpIn" type="text" dir="ltr" autocomplete="off" autocapitalize="characters" maxlength="32" placeholder="عندك كوبون؟" aria-label="كوبون الخصم"><button class="btn" type="submit">تطبيق</button></form>' +
         (payCouponMsg ? '<p class="price-n" style="color:var(--danger,#DC2626)">' + esc(payCouponMsg) + '</p>' : '');
