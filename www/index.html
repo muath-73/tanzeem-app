@@ -1056,6 +1056,16 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
     }, function () { if (loud) { payState = ''; if (view === 'pay') renderPay(); toast('تعذّر الاتصال بـ Apple. تأكد من الإنترنت وجرّب مرة ثانية.'); } return false; });
   }
   // sign-out can stall inside the iPad app (it waits on the server), which froze the screen; give it a few seconds, then finish locally either way
+  // true when this device still has a working login (refreshing it if needed); never waits more than 6 seconds
+  function sessionOk() {
+    var t = new Promise(function (r) { setTimeout(function () { r(false); }, 6000); });
+    var c = sb.auth.getSession().then(function (g) {
+      var se = g && g.data && g.data.session;
+      if (se && se.expires_at && se.expires_at * 1000 > Date.now() + 30000) return true;
+      return sb.auth.refreshSession().then(function (x) { return !!(x && x.data && x.data.session); }, function () { return false; });
+    }, function () { return false; });
+    return Promise.race([c, t]);
+  }
   function signOutSoon() { return Promise.race([sb.auth.signOut().catch(function () {}), new Promise(function (r) { setTimeout(r, 3000); })]); }
   // a slide that fails to open in the iPad app is reported quietly (reason + device only, never slide content) so it can be fixed without anyone writing in
   function reportErr(kind, e) {
@@ -1070,7 +1080,11 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
   var SKEY = 'mueen.v2';
   var SB_URL = 'https://orbzpmriclzwejtzasvh.supabase.co', SB_KEY = 'sb_publishable_akmPwkd-R0AIjAgJ9nXP9A_ryrYj-Lh';
   var sb = null, uid = null, pushT = null, pulling = false, lastSent = '', lastErrAt = 0;
-  try { sb = window.supabase.createClient(SB_URL, SB_KEY); } catch (e) { sb = null; }
+  // v70: the browser's built-in lock (navigator.locks) can hang inside the iPad app, which left sign-out stuck and
+  // sent requests without the user's login; a simple in-page queue keeps token refreshes one at a time instead
+  var authQ = Promise.resolve();
+  function authLock(name, timeout, fn) { var run = authQ.then(function () { return fn(); }); authQ = run.then(function () {}, function () {}); return run; }
+  try { sb = window.supabase.createClient(SB_URL, SB_KEY, { auth: { lock: authLock } }); } catch (e) { sb = null; }
   function stateOut() {
     return { courses: courses.map(function (c) { return Object.assign({}, c, { chapters: c.chapters.map(function (h) { return Object.assign({}, h, { busy: false }); }) }); }), saved: saved, settings: settings, lastStudy: lastStudy, nextId: nextId };
   }
@@ -2644,7 +2658,7 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
     else if (act === 'refLink') { var cl = refInfo && refInfo.code; if (cl) { var lk = 'https://tanzeem.app/app.html?ref=' + encodeURIComponent(cl); try { navigator.clipboard.writeText(lk).then(function () { toast('تم نسخ رابط الدعوة.'); }, function () { toast(lk); }); } catch (er) { toast(lk); } } }
     else if (act === 'refCopy') { var cc = refInfo && refInfo.code; if (cc) { try { navigator.clipboard.writeText(cc).then(function () { toast('تم نسخ الكود.'); }, function () { toast(cc); }); } catch (er) { toast(cc); } } }
     else if (act === 'refShare') { var c2 = refInfo && refInfo.code; if (c2) { var txt = 'جرّب تطبيق تنظيم للمذاكرة: ترفع سلايداتك وتضغط على أي مصطلح تطلع لك ترجمته حسب تخصصك. سجّل بكودي ' + c2 + (IS_NATIVE ? '.' : ' وخذ خصم على أول اشتراك.'); if (navigator.share) navigator.share({ text: txt }).catch(function () {}); else window.open('https://wa.me/?text=' + encodeURIComponent(txt), '_blank'); } }
-    else if (act === 'logout') { wiped = true; toast('نسجّل خروجك…'); var go = function () { clearLocal(); location.reload(); }; if (sb) signOutSoon().then(go, go); else go(); }
+    else if (act === 'logout') { wiped = true; toast('نسجّل خروجك…'); var go = function () { clearLocal(); location.reload(); setTimeout(function () { location.replace(location.pathname); }, 2500); }; if (sb) signOutSoon().then(go, go); else go(); }
     else if (act === 'addExam') { noteForm = 'exam'; noteErr = ''; renderCourse(); }
     else if (act === 'addNote') { noteForm = 'note'; noteErr = ''; renderCourse(); }
     else if (act === 'drNote' || act === 'drNoteX') { var df = $('#dnForm'), db = $('.dn-btn'); if (!df) return; var open = act === 'drNote' && df.hidden; df.hidden = !open; if (db) db.setAttribute('aria-expanded', String(open)); if (open) { var dt = $('#dnTxt'); if (dt) dt.focus({ preventScroll: true }); } }
@@ -2704,7 +2718,16 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
         wiped = true;
         var fin = function () { clearLocal(); location.reload(); };
         var failDel = function () { wiped = false; delConfirm = false; renderSettings(); toast('تعذّر حذف الحساب. حاول مرة ثانية.'); };
-        if (sb && uid) sb.functions.invoke('delete-account').then(function (r) { if (r && r.error) return failDel(); return signOutSoon().then(fin, fin); }, failDel);
+        var expired = function () { delConfirm = false; toast('انتهت جلستك. سجّل دخولك مرة ثانية، وبعدها احذف الحساب.'); setTimeout(function () { clearLocal(); location.reload(); }, 1800); };
+        if (sb && uid) sessionOk().then(function (ok) {
+          if (!ok) return expired();
+          return sb.functions.invoke('delete-account').then(function (r) {
+            var st = r && r.error && r.error.context && r.error.context.status;
+            if (st === 401) return expired();
+            if (r && r.error) return failDel();
+            return signOutSoon().then(fin, fin);
+          });
+        }).then(null, failDel);
         else fin();
       }
     }
@@ -3184,15 +3207,19 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
   window.addEventListener('pagehide', save);
   setInterval(save, 1500);
   user = null; view = 'login';
-  if (sb) sb.auth.onAuthStateChange(function (ev, se) { if (ev === 'PASSWORD_RECOVERY') { recovering = true; view = 'login'; auth.step = 'newpw'; renderLogin(); return; } if (ev === 'SIGNED_IN' && !recovering && se && se.user && uid !== se.user.id) enter(se); });
+  if (sb) sb.auth.onAuthStateChange(function (ev, se) { if (ev === 'PASSWORD_RECOVERY') { recovering = true; view = 'login'; auth.step = 'newpw'; renderLogin(); return; } if (ev === 'SIGNED_IN' && !recovering && se && se.user && uid !== se.user.id) enter(se);
+    if (ev === 'SIGNED_OUT' && uid && !wiped && !devKicked) { wiped = true; toast('انتهت جلستك. سجّل دخولك مرة ثانية.'); setTimeout(function () { clearLocal(); location.reload(); }, 1800); } });
   var boot = function () { if (settings.lang === 'en') setLang('en'); else render(); if (lsGet('tz_kicked')) { try { localStorage.removeItem('tz_kicked'); } catch (e) {} setTimeout(function () { toast('تم تسجيل الدخول لحسابك من جهاز آخر، فطلعناك من هذا الجهاز.'); }, 400); } };
   if (sb) {
+    var booted = false, bootOnce = function () { if (!booted) { booted = true; boot(); } };
+    var bootT = setTimeout(bootOnce, 4000);
     sb.auth.getSession().then(function (r) {
+      clearTimeout(bootT);
       var se = r && r.data && r.data.session;
-      if (se && recovering) { view = 'login'; auth.step = 'newpw'; boot(); return; }
-      if (se) { return enter(se).then(function () { if (settings.lang === 'en') setLang('en'); }); }
-      boot();
-    }, boot);
+      if (se && recovering) { view = 'login'; auth.step = 'newpw'; bootOnce(); return; }
+      if (se) { booted = true; return enter(se).then(function () { if (settings.lang === 'en') setLang('en'); }); }
+      bootOnce();
+    }, function () { clearTimeout(bootT); bootOnce(); });
   } else boot();
 })();
 </script>
