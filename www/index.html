@@ -591,6 +591,21 @@ button.srow:hover { background: var(--chip); }
 .sw[aria-checked="true"] i { transform: translateX(-20px); }
 .btn.danger { color: var(--bad-ink); border-color: #FECACA; }
 
+/* v62 motion: website only (the .anim class is never set inside the iPad app or with reduced motion); plays once when a screen opens, never on re-renders */
+@keyframes tzIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes tzFadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes tzSheetIn { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: none; } }
+.anim .page.v-in { animation: tzIn .22s cubic-bezier(.2,.7,.3,1) both; }
+.anim .v-in .grid > .course, .anim .v-in .chrow, .anim .v-in .wcard, .anim .v-in .lrow { animation: tzIn .26s cubic-bezier(.2,.7,.3,1) both; }
+.anim .v-in .grid > .course:nth-child(2), .anim .v-in .chrow:nth-child(2), .anim .v-in .wcard:nth-child(2), .anim .v-in .lrow:nth-child(2) { animation-delay: .04s; }
+.anim .v-in .grid > .course:nth-child(3), .anim .v-in .chrow:nth-child(3), .anim .v-in .wcard:nth-child(3), .anim .v-in .lrow:nth-child(3) { animation-delay: .08s; }
+.anim .v-in .grid > .course:nth-child(4), .anim .v-in .chrow:nth-child(4), .anim .v-in .wcard:nth-child(4), .anim .v-in .lrow:nth-child(4) { animation-delay: .12s; }
+.anim .v-in .grid > .course:nth-child(5), .anim .v-in .chrow:nth-child(5), .anim .v-in .wcard:nth-child(5), .anim .v-in .lrow:nth-child(5) { animation-delay: .16s; }
+.anim .v-in .grid > .course:nth-child(n+6), .anim .v-in .chrow:nth-child(n+6), .anim .v-in .wcard:nth-child(n+6), .anim .v-in .lrow:nth-child(n+6) { animation-delay: .2s; }
+.anim .modal:not([hidden]) { animation: tzFadeIn .18s ease-out both; }
+.anim .modal:not([hidden]) > .sheet { animation: tzSheetIn .24s cubic-bezier(.2,.7,.3,1) both; }
+.anim .toast:not([hidden]) { animation: tzSheetIn .2s cubic-bezier(.2,.7,.3,1) both; }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; transition: none !important; }
   .scan { display: none !important; }
@@ -1360,6 +1375,8 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
   }
   var reduce = false;
   try { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+  var ANIM = !IS_NATIVE && !reduce, vInT = 0;
+  if (ANIM) document.documentElement.classList.add('anim');
 
   function esc(s) { return String(s).replace(/[&<>"]/g, function (m) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[m]; }); }
   function pad(n) { return (n < 10 ? '0' : '') + n; }
@@ -1390,6 +1407,7 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
     if (!keep) { adding = false; chErr = ''; upErr = null; noteForm = null; noteErr = ''; editC = false; renIdx = -1; delConfirm = false; pwOpen = false; }
     window.scrollTo(0, 0);
     render();
+    if (ANIM) { var pg = $('#view').firstElementChild; if (pg && pg.classList.contains('page')) { clearTimeout(vInT); pg.classList.add('v-in'); vInT = setTimeout(function () { pg.classList.remove('v-in'); }, 700); } }
   }
   function render() {
     applyLang();
