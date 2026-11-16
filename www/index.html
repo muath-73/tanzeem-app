@@ -591,19 +591,74 @@ button.srow:hover { background: var(--chip); }
 .sw[aria-checked="true"] i { transform: translateX(-20px); }
 .btn.danger { color: var(--bad-ink); border-color: #FECACA; }
 
+/* v71 look: colours, corners and motion of the animated prototype, applied to the real app (website and iPad, light theme only); layout, text and features unchanged */
+.cbadge, .cprog, .r-play, .r-prog { display: none; }
+:root.web:not([data-theme="dark"]) {
+  --bg: #F6F7F4; --card: #FFFFFF; --line: #E3E6E1; --line-2: #C9D3CD; --chip: #EEF1EE; --zone: #F3F5F2;
+  --ink: #14231D; --muted: #5B6A63; --faint: #6B7A73;
+  --primary: #0B3B2E; --primary-hover: #12503F; --primary-soft: #E8F0EC; --primary-line: #C9D6CF;
+  --toast: #14231D;
+  --e1: 0 1px 2px rgba(20,35,29,.04); --e2: 0 16px 36px rgba(11,59,46,.12);
+}
+:root.web:not([data-theme="dark"]) .slide { --ink:#0F172A; --muted:#475569; --faint:#64748B; --card:#FFFFFF; --chip:#F1F5F9; --line:#E2E8F0; --line-2:#CBD5E1; --primary:#2563EB; --primary-hover:#1D4ED8; --primary-soft:#EFF6FF; --primary-line:#BFDBFE; }
+:root.web:not([data-theme="dark"]) .bar { background: rgba(255,255,255,.96); border-bottom-color: var(--line); }
+:root.web:not([data-theme="dark"]) .course, :root.web:not([data-theme="dark"]) .chrow, :root.web:not([data-theme="dark"]) .hero, :root.web:not([data-theme="dark"]) .c-hero, :root.web:not([data-theme="dark"]) .card, :root.web:not([data-theme="dark"]) .wcard, :root.web:not([data-theme="dark"]) .plan, :root.web:not([data-theme="dark"]) .resume { border-radius: 20px; }
+:root.web:not([data-theme="dark"]) .btn { border-radius: 14px; transition: transform .18s cubic-bezier(.2,.8,.2,1), box-shadow .2s, background .2s, border-color .2s; }
+:root.web:not([data-theme="dark"]) .btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(11,59,46,.10); border-color: #C9D3CD; }
+:root.web:not([data-theme="dark"]) .btn.primary:hover:not(:disabled) { background: #12503F; border-color: #12503F; box-shadow: 0 10px 24px rgba(11,59,46,.25); }
+:root.web:not([data-theme="dark"]) .btn:active:not(:disabled) { transform: scale(.96); transition-duration: .08s; }
+:root.web:not([data-theme="dark"]) .course { transition: transform .25s cubic-bezier(.2,.8,.2,1), box-shadow .25s, border-color .25s; }
+:root.web:not([data-theme="dark"]) .course:hover { transform: translateY(-4px); box-shadow: 0 16px 36px rgba(11,59,46,.12); border-color: #C9D3CD; }
+:root.web:not([data-theme="dark"]) .tag, :root.web:not([data-theme="dark"]) .pill { background: transparent; border: 0; padding-inline: 0; color: var(--muted); font-weight: 500; }
+:root.web:not([data-theme="dark"]) .search input:focus, :root.web:not([data-theme="dark"]) .fld input:focus, :root.web:not([data-theme="dark"]) .auth input:focus { border-color: #0B3B2E; box-shadow: 0 0 0 4px rgba(11,59,46,.12); }
+:root.web:not([data-theme="dark"]) .tab[aria-current="page"], :root.web:not([data-theme="dark"]) .ttab[aria-current="page"] { color: #2563EB; }
+:root.web:not([data-theme="dark"]) .tab[aria-current="page"] .ic, :root.web:not([data-theme="dark"]) .ttab[aria-current="page"] { background: rgba(37,99,235,.09); }
+:root.web .tab .ic svg { transition: transform .3s cubic-bezier(.2,.8,.2,1); }
+:root.web .tab[aria-current="page"] .ic svg { transform: scale(1.15); }
+:root.web:not([data-theme="dark"]) .avatar { background: #1E3A8A; }
+:root.web:not([data-theme="dark"]) .link, :root.web:not([data-theme="dark"]) .backlink { color: #2563EB; }
+:root.web .cbadge { display: inline-grid; place-items: center; min-width: 44px; height: 44px; padding: 0 8px; margin-inline-end: 10px; border-radius: 14px; font: 700 13px/1 var(--f-en); letter-spacing: .02em; background: #5B6A63; color: #fff; }
+:root.web .cbadge.f0 { background: #9F1239; color: #FECDD3; } :root.web .cbadge.f1 { background: #1E3A8A; color: #BFDBFE; } :root.web .cbadge.f2 { background: #0B3B2E; color: #E5C26A; } :root.web .cbadge.f3 { background: #92400E; color: #FDE68A; } :root.web .cbadge.f4 { background: #374151; color: #E5E7EB; }
+:root.web .c-top { align-items: center; }
+:root.web .c-sum { margin-inline-end: 40px; }
+:root.web .hero-k { top: 4px; }
+:root.web .cprog { display: block; height: 8px; margin-top: 12px; border-radius: 999px; background: #E7ECE8; overflow: hidden; }
+:root.web .cprog i, :root.web .r-prog i { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #0B3B2E, #2F7A62); }
+:root.web:not([data-theme="dark"]) .resume { background: var(--card); color: var(--ink); border: 1px solid var(--line); box-shadow: var(--e1); }
+:root.web:not([data-theme="dark"]) .resume small { color: var(--muted); opacity: 1; }
+:root.web:not([data-theme="dark"]) .resume .btn { background: #0B3B2E; color: #fff; border-color: #0B3B2E; }
+:root.web .r-l { display: flex; align-items: center; gap: 16px; min-width: 0; }
+:root.web .r-play { display: grid; place-items: center; flex: none; width: 52px; height: 52px; border-radius: 16px; background: rgba(37,99,235,.1); color: #2563EB; }
+:root.web .r-play svg { width: 26px; height: 26px; }
+:root.web .r-prog { display: block; width: 160px; max-width: 100%; height: 8px; margin-top: 8px; border-radius: 999px; background: #E7ECE8; overflow: hidden; }
+@keyframes tzGrow { from { width: 0; } }
+@keyframes tzUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+@keyframes tzPop { 0% { opacity: 0; transform: scale(.92); } 60% { opacity: 1; transform: scale(1.02); } 100% { transform: scale(1); } }
+.anim .v-in .cprog i, .anim .v-in .r-prog i { animation: tzGrow 1.6s cubic-bezier(.2,.8,.2,1) .4s both; }
+@keyframes featIn { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: none; } }
+.anim .v-in .feats li { animation: featIn .28s cubic-bezier(.2,.7,.3,1) both; }
+.anim .v-in .feats li:nth-child(1) { animation-delay: .15s; } .anim .v-in .feats li:nth-child(2) { animation-delay: .25s; } .anim .v-in .feats li:nth-child(3) { animation-delay: .35s; } .anim .v-in .feats li:nth-child(4) { animation-delay: .45s; } .anim .v-in .feats li:nth-child(5) { animation-delay: .55s; } .anim .v-in .feats li:nth-child(6) { animation-delay: .65s; } .anim .v-in .feats li:nth-child(n+7) { animation-delay: .75s; }
+/* v64 smoother translation card (website only, plays when a word is picked, not on re-renders) */
+@keyframes trOpen { from { opacity: 0; transform: translateY(14px) scale(.985); } to { opacity: 1; transform: none; } }
+@keyframes trSwap { from { opacity: .35; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@keyframes trGot { from { opacity: 0; } to { opacity: 1; } }
+.anim .side > .tr-open { animation: trOpen .26s cubic-bezier(.2,.8,.25,1) both; }
+.anim .side > .tr-swap { animation: trSwap .18s ease-out both; }
+.anim .side .tr-got .ar, .anim .side .tr-got .mean, .anim .side .tr-got .sent { animation: trGot .22s ease-out both; }
+.anim .w { transition: background-color .15s ease, box-shadow .15s ease; }
 /* v62 motion: website only (the .anim class is never set inside the iPad app or with reduced motion); plays once when a screen opens, never on re-renders */
 @keyframes tzIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 @keyframes tzFadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes tzSheetIn { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: none; } }
-.anim .page.v-in { animation: tzIn .22s cubic-bezier(.2,.7,.3,1) both; }
-.anim .v-in .grid > .course, .anim .v-in .chrow, .anim .v-in .wcard, .anim .v-in .lrow { animation: tzIn .26s cubic-bezier(.2,.7,.3,1) both; }
-.anim .v-in .grid > .course:nth-child(2), .anim .v-in .chrow:nth-child(2), .anim .v-in .wcard:nth-child(2), .anim .v-in .lrow:nth-child(2) { animation-delay: .04s; }
-.anim .v-in .grid > .course:nth-child(3), .anim .v-in .chrow:nth-child(3), .anim .v-in .wcard:nth-child(3), .anim .v-in .lrow:nth-child(3) { animation-delay: .08s; }
-.anim .v-in .grid > .course:nth-child(4), .anim .v-in .chrow:nth-child(4), .anim .v-in .wcard:nth-child(4), .anim .v-in .lrow:nth-child(4) { animation-delay: .12s; }
-.anim .v-in .grid > .course:nth-child(5), .anim .v-in .chrow:nth-child(5), .anim .v-in .wcard:nth-child(5), .anim .v-in .lrow:nth-child(5) { animation-delay: .16s; }
-.anim .v-in .grid > .course:nth-child(n+6), .anim .v-in .chrow:nth-child(n+6), .anim .v-in .wcard:nth-child(n+6), .anim .v-in .lrow:nth-child(n+6) { animation-delay: .2s; }
+.anim .page.v-in { animation: tzUp .5s cubic-bezier(.2,.8,.2,1) both; }
+.anim .v-in .grid > .course, .anim .v-in .chrow, .anim .v-in .wcard, .anim .v-in .lrow { animation: tzUp .55s cubic-bezier(.2,.8,.2,1) both; }
+.anim .v-in .grid > .course:nth-child(2), .anim .v-in .chrow:nth-child(2), .anim .v-in .wcard:nth-child(2), .anim .v-in .lrow:nth-child(2) { animation-delay: .08s; }
+.anim .v-in .grid > .course:nth-child(3), .anim .v-in .chrow:nth-child(3), .anim .v-in .wcard:nth-child(3), .anim .v-in .lrow:nth-child(3) { animation-delay: .16s; }
+.anim .v-in .grid > .course:nth-child(4), .anim .v-in .chrow:nth-child(4), .anim .v-in .wcard:nth-child(4), .anim .v-in .lrow:nth-child(4) { animation-delay: .24s; }
+.anim .v-in .grid > .course:nth-child(5), .anim .v-in .chrow:nth-child(5), .anim .v-in .wcard:nth-child(5), .anim .v-in .lrow:nth-child(5) { animation-delay: .32s; }
+.anim .v-in .grid > .course:nth-child(n+6), .anim .v-in .chrow:nth-child(n+6), .anim .v-in .wcard:nth-child(n+6), .anim .v-in .lrow:nth-child(n+6) { animation-delay: .4s; }
 .anim .modal:not([hidden]) { animation: tzFadeIn .18s ease-out both; }
-.anim .modal:not([hidden]) > .sheet { animation: tzSheetIn .24s cubic-bezier(.2,.7,.3,1) both; }
+.anim .modal:not([hidden]) > .sheet { animation: tzPop .45s cubic-bezier(.2,.8,.2,1) both; }
 .anim .toast:not([hidden]) { animation: tzSheetIn .2s cubic-bezier(.2,.7,.3,1) both; }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1359,7 +1414,7 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
     var e = nextExam();
     return e && e.n <= 7 ? '<button class="term exam" type="button" data-act="gocourse" data-c="' + e.co.id + '" title="' + esc(e.name + ' · ' + e.co.name) + '">اختبار ' + daysLbl(e.n) + '</button>' : '';
   }
-  function applyTheme() { var d = !!settings.dark; document.documentElement.setAttribute('data-theme', d ? 'dark' : 'light'); var m = document.querySelector('meta[name=theme-color]'); if (m) m.setAttribute('content', d ? '#0B1220' : '#4F46E5'); }
+  function applyTheme() { var d = !!settings.dark; document.documentElement.setAttribute('data-theme', d ? 'dark' : 'light'); var m = document.querySelector('meta[name=theme-color]'); if (m) m.setAttribute('content', d ? '#0B1220' : '#0B3B2E'); }
   function applyLang() { applyTheme();  var a = $('.app'); a.dir = settings.lang === 'en' ? 'ltr' : 'rtl'; a.lang = settings.lang; document.documentElement.lang = settings.lang; }
   var lastStudy = null;
   // v70: forget everything of the previous account on this device (used on sign-out, account deletion and when another account signs in)
@@ -1396,8 +1451,10 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
   }
   var reduce = false;
   try { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
-  var ANIM = !IS_NATIVE && !reduce, vInT = 0;
+  var ANIM = !reduce, vInT = 0;
   if (ANIM) document.documentElement.classList.add('anim');
+  document.documentElement.classList.add('web');
+  document.addEventListener('input', function (e) { if (e.target && e.target.id === 'q') { var pg = document.querySelector('#view .page.v-in'); if (pg) pg.classList.remove('v-in'); } }, true);
 
   function esc(s) { return String(s).replace(/[&<>"]/g, function (m) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[m]; }); }
   function pad(n) { return (n < 10 ? '0' : '') + n; }
@@ -1428,7 +1485,7 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
     if (!keep) { adding = false; chErr = ''; upErr = null; noteForm = null; noteErr = ''; editC = false; renIdx = -1; delConfirm = false; pwOpen = false; }
     window.scrollTo(0, 0);
     render();
-    if (ANIM) { var pg = $('#view').firstElementChild; if (pg && pg.classList.contains('page')) { clearTimeout(vInT); pg.classList.add('v-in'); vInT = setTimeout(function () { pg.classList.remove('v-in'); }, 700); } }
+    if (ANIM) { var pg = $('#view').firstElementChild; if (pg && pg.classList.contains('page')) { clearTimeout(vInT); pg.classList.add('v-in'); vInT = setTimeout(function () { pg.classList.remove('v-in'); }, 2100); } }
   }
   function render() {
     applyLang();
@@ -1471,9 +1528,11 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
   function renderHome() {
     var cards = courses.map(function (co) {
       var r = co.chapters.filter(ready).length;
+      var fi = FIELDS.indexOf(co.field), pct = co.chapters.length ? Math.round(doneCount(co) / co.chapters.length * 100) : 0;
+      var ab = ((co.code || '').match(/^[A-Za-z]{2,5}/) || [''])[0].toUpperCase() || ['MED', 'CS', 'BUS', 'ENG', 'LAW'][fi] || ((co.name.match(/[A-Za-z]{2,4}/) || [''])[0].toUpperCase() || co.name.trim().slice(0, 2));
       return '<button class="course" type="button" data-course="' + co.id + '">' +
-        '<span><span class="c-top"><span class="tag">' + esc(co.field) + '</span></span><span class="c-name">' + esc(co.name) + '</span><span class="c-code">' + esc(co.code || '') + '</span></span>' +
-        '<span class="c-foot"><span>' + chWord(co.chapters.length) + '</span>' + (co.chapters.length ? '<i></i><span>' + r + ' جاهزة</span>' + (doneCount(co) ? '<i></i><span>' + doneCount(co) + ' تمت</span>' : '') : '') + '</span></button>';
+        '<span><span class="c-top"><span class="cbadge f' + fi + '" aria-hidden="true">' + esc(ab) + '</span><span class="tag">' + esc(co.field) + '</span></span><span class="c-name">' + esc(co.name) + '</span><span class="c-code">' + esc(co.code || '') + '</span></span>' +
+        '<span class="c-foot"><span>' + chWord(co.chapters.length) + '</span>' + (co.chapters.length ? '<i></i><span>' + r + ' جاهزة</span>' + (doneCount(co) ? '<i></i><span>' + doneCount(co) + ' تمت</span>' : '') : '') + '</span><span class="cprog" aria-hidden="true"><i style="width:' + pct + '%"></i></span></button>';
     }).join('');
     homeCards = cards;
     $('#view').innerHTML = '<div class="page"><section class="hero"><div class="hero-t"><div class="hero-row"><h1>مرحباً' + (dispName() ? ' ' + esc(dispName()) : '') + '</h1><span class="pill">' + countWord(courses.length) + '</span></div>' +
@@ -1488,7 +1547,8 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
     var co = courses.filter(function (x) { return x.id === lastStudy.cid; })[0];
     var c = co && co.chapters[lastStudy.ch];
     if (!c || !ready(c) || c.done || !(c.last > 0)) return '';
-    return '<section class="resume"><div><small>تابع من حيث وقفت</small><b>' + esc(c.name) + '</b><small>' + esc(co.name) + (c.file.slides ? ' · السلايد ' + (c.last + 1) + ' من ' + c.file.slides : '') + '</small></div>' +
+    var rp = c.file.slides ? Math.round((c.last + 1) / c.file.slides * 100) : 0;
+    return '<section class="resume"><div class="r-l"><span class="r-play" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M8 5.5v13l10-6.5z"/></svg></span><div><small>تابع من حيث وقفت</small><b>' + esc(c.name) + '</b><small>' + esc(co.name) + (c.file.slides ? ' · السلايد ' + (c.last + 1) + ' من ' + c.file.slides : '') + '</small>' + (rp ? '<span class="r-prog"><i style="width:' + rp + '%"></i></span>' : '') + '</div></div>' +
       '<button class="btn" type="button" data-act="resume">أكمل المذاكرة</button></section>';
   }
   function homeBody() {
@@ -2192,9 +2252,15 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
   function paintSide() {
     var side = $('#side');
     var h = S.mode === 'quiz' ? quizHTML() : S.mode === 'locked' ? lockedHTML() : S.mode === 'prompt' ? promptHTML() : trHTML();
+    var wasHidden = side.hidden || !side.firstElementChild, pk = side.dataset.k || '', pd = side.dataset.d || '';
     side.classList.toggle('static', S.mode !== 'tr');
     side.innerHTML = h;
     side.hidden = !h;
+    if (ANIM && h && S.mode === 'tr') {
+      var cd = side.firstElementChild, nd = termData() ? '1' : '';
+      if (cd) { if (wasHidden) cd.classList.add('tr-open'); else if (pk !== (S.selKey || '')) cd.classList.add('tr-swap'); else if (nd && !pd) cd.classList.add('tr-got'); }
+      side.dataset.k = S.selKey || ''; side.dataset.d = nd;
+    } else { side.dataset.k = ''; side.dataset.d = ''; }
     fitSide();
   }
 
