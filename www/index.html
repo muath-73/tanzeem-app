@@ -1079,6 +1079,7 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
   function clearLocal() { try { localStorage.removeItem(SKEY); Object.keys(localStorage).forEach(function (k) { if (/^sb-.*-auth-token/.test(k)) localStorage.removeItem(k); }); } catch (e) {} }
   var SKEY = 'mueen.v2';
   var SB_URL = 'https://orbzpmriclzwejtzasvh.supabase.co', SB_KEY = 'sb_publishable_akmPwkd-R0AIjAgJ9nXP9A_ryrYj-Lh';
+  var stateOwner = '';
   var sb = null, uid = null, pushT = null, pulling = false, lastSent = '', lastErrAt = 0;
   // v70: the browser's built-in lock (navigator.locks) can hang inside the iPad app, which left sign-out stuck and
   // sent requests without the user's login; a simple in-page queue keeps token refreshes one at a time instead
@@ -1284,7 +1285,8 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
     return out + '</div></div>';
   }
   function enter(session) {
-    uid = session.user.id; user = { id: session.user.email, method: 'mail' };
+    if ((uid && uid !== session.user.id) || (stateOwner && stateOwner !== session.user.id)) wipeMemory();
+    uid = session.user.id; stateOwner = uid; user = { id: session.user.email, method: 'mail' };
     return pullRemote().then(loadSub).then(function () {
       devStart(); notifSync(false); refQualify(); if (NP) setTimeout(function () { iapSync(false); }, 2500);
       if (pendingRef) { var pr = pendingRef; pendingRef = ''; lsSet('tz_ref', ''); refRedeem(pr).then(refLoad); } else refLoad();
@@ -1308,7 +1310,7 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
     try {
       localStorage.setItem(SKEY, JSON.stringify({
         courses: courses.map(function (c) { return Object.assign({}, c, { chapters: c.chapters.map(function (h) { return Object.assign({}, h, { busy: false }); }) }); }),
-        saved: saved, settings: settings, user: user, subscribed: subscribed, plan: plan, lastStudy: lastStudy, nextId: nextId, aiCache: aiCache, subResetV2: true
+        saved: saved, settings: settings, user: user, subscribed: subscribed, plan: plan, lastStudy: lastStudy, nextId: nextId, aiCache: aiCache, subResetV2: true, owner: uid || stateOwner || ''
       }));
     } catch (e) {}
     if (sb && uid && !pushT && !pulling) pushT = setTimeout(function () { pushT = null; pushNow(); }, 800);
@@ -1317,7 +1319,7 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
     try {
       var d = JSON.parse(localStorage.getItem(SKEY) || 'null');
       if (!d || !d.courses) return;
-      courses = d.courses; saved = d.saved || []; Object.assign(settings, d.settings || {}); user = d.user || null;
+      courses = d.courses; saved = d.saved || []; Object.assign(settings, d.settings || {}); user = d.user || null; stateOwner = d.owner || '';
       subscribed = false; plan = null; trial = null; trialEnded = false; lastStudy = d.lastStudy || null; nextId = d.nextId || nextId; aiCache = d.aiCache || {};
       if (user && settings.name) view = 'home';
     } catch (e) {}
@@ -1360,6 +1362,11 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
   function applyTheme() { var d = !!settings.dark; document.documentElement.setAttribute('data-theme', d ? 'dark' : 'light'); var m = document.querySelector('meta[name=theme-color]'); if (m) m.setAttribute('content', d ? '#0B1220' : '#4F46E5'); }
   function applyLang() { applyTheme();  var a = $('.app'); a.dir = settings.lang === 'en' ? 'ltr' : 'rtl'; a.lang = settings.lang; document.documentElement.lang = settings.lang; }
   var lastStudy = null;
+  // v70: forget everything of the previous account on this device (used on sign-out, account deletion and when another account signs in)
+  function wipeMemory() {
+    courses = []; saved = []; lastStudy = null; nextId = 1; aiCache = {}; stateOwner = '';
+    settings.name = ''; subscribed = false; plan = null; trial = null; trialEnded = false; user = null; uid = null;
+  }
   var q = '', wq = '', rv = null, homeCards = '';
   function readyBadge(c) { return c.done ? '<span class="badge ok">تمت المذاكرة</span>' : c.last > 0 ? '<span class="badge busy">وصلت للسلايد ' + (c.last + 1) + '</span>' : '<span class="badge ok">جاهز</span>'; }
   function startLbl(c) { return c.done ? 'مراجعة' : c.last > 0 ? 'أكمل المذاكرة' : 'بدء المذاكرة'; }
@@ -2658,7 +2665,7 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
     else if (act === 'refLink') { var cl = refInfo && refInfo.code; if (cl) { var lk = 'https://tanzeem.app/app.html?ref=' + encodeURIComponent(cl); try { navigator.clipboard.writeText(lk).then(function () { toast('تم نسخ رابط الدعوة.'); }, function () { toast(lk); }); } catch (er) { toast(lk); } } }
     else if (act === 'refCopy') { var cc = refInfo && refInfo.code; if (cc) { try { navigator.clipboard.writeText(cc).then(function () { toast('تم نسخ الكود.'); }, function () { toast(cc); }); } catch (er) { toast(cc); } } }
     else if (act === 'refShare') { var c2 = refInfo && refInfo.code; if (c2) { var txt = 'جرّب تطبيق تنظيم للمذاكرة: ترفع سلايداتك وتضغط على أي مصطلح تطلع لك ترجمته حسب تخصصك. سجّل بكودي ' + c2 + (IS_NATIVE ? '.' : ' وخذ خصم على أول اشتراك.'); if (navigator.share) navigator.share({ text: txt }).catch(function () {}); else window.open('https://wa.me/?text=' + encodeURIComponent(txt), '_blank'); } }
-    else if (act === 'logout') { wiped = true; toast('نسجّل خروجك…'); var go = function () { clearLocal(); location.reload(); setTimeout(function () { location.replace(location.pathname); }, 2500); }; if (sb) signOutSoon().then(go, go); else go(); }
+    else if (act === 'logout') { wiped = true; toast('نسجّل خروجك…'); var go = function () { clearLocal(); wipeMemory(); location.reload(); setTimeout(function () { location.replace(location.pathname); }, 2500); }; if (sb) signOutSoon().then(go, go); else go(); }
     else if (act === 'addExam') { noteForm = 'exam'; noteErr = ''; renderCourse(); }
     else if (act === 'addNote') { noteForm = 'note'; noteErr = ''; renderCourse(); }
     else if (act === 'drNote' || act === 'drNoteX') { var df = $('#dnForm'), db = $('.dn-btn'); if (!df) return; var open = act === 'drNote' && df.hidden; df.hidden = !open; if (db) db.setAttribute('aria-expanded', String(open)); if (open) { var dt = $('#dnTxt'); if (dt) dt.focus({ preventScroll: true }); } }
@@ -2716,7 +2723,7 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
       if (!delConfirm) { delConfirm = true; renderSettings(); }
       else {
         wiped = true;
-        var fin = function () { clearLocal(); location.reload(); };
+        var fin = function () { clearLocal(); wipeMemory(); location.reload(); setTimeout(function () { location.replace(location.pathname); }, 2500); };
         var failDel = function () { wiped = false; delConfirm = false; renderSettings(); toast('تعذّر حذف الحساب. حاول مرة ثانية.'); };
         var expired = function () { delConfirm = false; toast('انتهت جلستك. سجّل دخولك مرة ثانية، وبعدها احذف الحساب.'); setTimeout(function () { clearLocal(); location.reload(); }, 1800); };
         if (sb && uid) sessionOk().then(function (ok) {
