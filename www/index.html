@@ -1934,7 +1934,7 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
       return;
     }
     if (!iapPrice.month && !iapPrice.year) iapLoad();
-    var price = iapPrice[cycle] || (PRICE[cycle] + ' ر.س'), busy = payState === 'busy';
+    var price = iapTxt(cycle), busy = payState === 'busy';
     $('#view').innerHTML = '<div class="page narrow">' + back + '<section><h1 class="sec-h pg-h">الاشتراك</h1></section><div class="cyc" role="radiogroup" aria-label="مدة الاشتراك"><button type="button" role="radio" aria-checked="' + (cycle === 'month') + '" data-cyc="month">شهري</button><button type="button" role="radio" aria-checked="' + (cycle === 'year') + '" data-cyc="year">سنوي · وفّر ' + iapSave().pct + '%</button></div>' +
       '<div class="slist" style="padding:4px 16px"><div class="sumrow"><span>الخطة</span><b>' + (cycle === 'year' ? 'مشترك · سنوي' : 'مشترك · شهري') + '</b></div><div class="sumrow"><span>السعر</span><b dir="ltr">' + esc(price) + '</b></div><div class="sumrow"><span>التجديد</span><span>تلقائي ' + (cycle === 'year' ? 'كل سنة' : 'كل شهر') + '</span></div></div>' +
       '<button class="btn primary" type="button" data-act="iapBuy"' + (busy || !NP ? ' disabled' : '') + '>' + (busy ? 'جارٍ الاشتراك…' : 'اشترك عن طريق Apple') + '</button>' +
@@ -2788,8 +2788,12 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
       if (!NP || !uid) return;
       payState = 'busy'; renderPay();
       NP.purchaseProduct({ productIdentifier: IAP_ID[cycle], productType: 'subs', appAccountToken: uid, quantity: 1 }).then(function (tx) {
-        return iapVerify([String(tx && tx.transactionId || '')], true);
-      }, function () { payState = ''; renderPay(); });
+        var id = String(tx && tx.transactionId || '');
+        return id ? iapVerify([id], true) : iapSync(true);
+      }, function () {
+        // cancelled, or Apple says this Apple ID is already subscribed: quietly look for an active subscription to link
+        return iapSync(false).then(function (ok) { if (!ok) { payState = ''; renderPay(); } else if (view === 'pay' && payState !== 'done') { payState = 'done'; show('pay'); } });
+      });
     }
     else if (act === 'iapRestore') { if (!NP) return; payState = 'busy'; renderPay(); NP.restorePurchases().then(function () { return iapSync(true); }, function () { return iapSync(true); }); }
     else if (act === 'iapManage') { if (NP && NP.manageSubscriptions) NP.manageSubscriptions().catch(function () {}); }
@@ -3083,6 +3087,7 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
     'هل أقدر أستخدم حسابي على أكثر من جهاز؟': 'Can I use my account on more than one device?', 'الحساب يشتغل على جهاز واحد في نفس الوقت. إذا دخلت من جهاز جديد، يطلع الجهاز القديم تلقائياً، وموادك تنتقل معك.': 'An account works on one device at a time. If you sign in on a new device, the old one is signed out automatically and your courses come with you.',
     'وش الملفات اللي أقدر أرفعها؟': 'Which files can I upload?', 'ملفات PDF وPowerPoint (PPTX)، وحجم الملف حتى 50 ميجابايت.': 'PDF and PowerPoint (PPTX) files, up to 50 MB each.', 'هل يشوف أحد ملفاتي؟': 'Can anyone see my files?', 'لا، ملفاتك وملاحظاتك خاصة بحسابك ولا يطّلع عليها غيرك.': 'No, your files and notes are private to your account.', 'كيف أتواصل معكم؟': 'How do I contact you?', 'راسلنا على الإيميل tanzeemm.app@gmail.com': 'Email us at tanzeemm.app@gmail.com',
     'مزوّدو الخدمات': 'Service providers', 'نستعين بمزوّدي خدمات موثوقين للاستضافة والتخزين ومعالجة المدفوعات وتشغيل بعض مزايا التطبيق، ويلتزمون بحماية بياناتك.': 'We use trusted service providers for hosting, storage, payment processing and running some app features, and they are committed to protecting your data.', 'آخر تحديث: 15 نوفمبر 2026.': 'Last updated: 15 November 2026.' });
+  Object.assign(EN, { "تلقائي كل شهر": "Automatically every month", "تلقائي كل سنة": "Automatically every year", "سياسة الاشتراك": "Subscription policy", "الدفع يتم عن طريق حساب Apple. الاشتراك يتجدد تلقائياً بنفس السعر، إلا إذا ألغيته قبل نهاية المدة بـ 24 ساعة على الأقل من إعدادات حسابك في Apple.": "Payment is charged to your Apple Account. The subscription renews automatically at the same price unless you cancel it at least 24 hours before the end of the period in your Apple Account settings.", "ما قدرنا نتأكد من الاشتراك. جرّب «استرجاع المشتريات» بعد شوي.": "We couldn’t confirm the subscription. Try “Restore purchases” in a moment.", "تعذّر التحقق من الاشتراك. تأكد من الإنترنت وجرّب مرة ثانية.": "Couldn’t verify the subscription. Check your internet connection and try again.", "ما لقينا اشتراك سابق على حساب Apple هذا.": "No previous subscription was found on this Apple Account.", "تعذّر الاتصال بـ Apple. تأكد من الإنترنت وجرّب مرة ثانية.": "Couldn’t reach Apple. Check your internet connection and try again." });
   Object.assign(EN, { "سنوياً": "/ year", "شهرياً": "/ month", "يعادل نحو 13 ر.س شهرياً. يتجدد تلقائياً كل سنة.": "About SAR 13 a month. Renews automatically every year.", "يتجدد تلقائياً كل شهر.": "Renews automatically every month." });
   Object.assign(EN, { "تم حذف حسابك وكل بياناته.": "Your account and all its data were deleted.", "انتهت جلستك. سجّل دخولك مرة ثانية، وبعدها احذف الحساب.": "Your session expired. Sign in again, then delete the account.", "انتهت جلستك. سجّل دخولك مرة ثانية.": "Your session expired. Please sign in again.", "تم تسجيل الدخول لحسابك من جهاز آخر، فطلعناك من هذا الجهاز.": "Your account was signed in on another device, so you were signed out here." });
   Object.assign(EN, { "اشترك عن طريق Apple": "Subscribe with Apple", "استرجاع المشتريات": "Restore purchases", "جارٍ الاشتراك…": "Subscribing…", "إدارة الاشتراك في Apple": "Manage subscription in Apple", "تلقائي عن طريق Apple": "Automatic via Apple", "التجديد القادم": "Next renewal", "السعر": "Price" });
