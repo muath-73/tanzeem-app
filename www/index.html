@@ -695,7 +695,8 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
 <style>
 
 /* sign-in screens: same look as the opening animation's last frame */
-.au{position:fixed;inset:0;z-index:20;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;background:#0B3B2E;direction:rtl;font-family:'IBM Plex Sans Arabic',system-ui,'Segoe UI',Tahoma,sans-serif;-webkit-transform:translateZ(0);transform:translateZ(0)}
+.au{position:relative;z-index:20;min-height:100vh;min-height:100dvh;overflow:hidden;background:#0B3B2E;direction:rtl;font-family:'IBM Plex Sans Arabic',system-ui,'Segoe UI',Tahoma,sans-serif}
+body.on-login{margin:0;background:#0B3B2E}
 .app[dir="ltr"] .au{direction:ltr}
 .au-h{position:absolute;top:calc(env(safe-area-inset-top,0px) + 6vh);right:7vw;left:7vw}
 .au-h .r{display:flex;align-items:center;gap:12px}
@@ -1096,24 +1097,34 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
       if (view === 'pay') renderPay(); else if (view === 'plan') renderPlan();
     }, function () {});
   }
+  // loud: true = right after buying, 'restore' = the restore button, false = quiet background check
+  function iapMsg(loud, kind) {
+    payState = ''; if (view === 'pay') renderPay();
+    if (kind === 'none') toast('ما لقينا اشتراك فعّال على حساب Apple هذا.');
+    else if (kind === 'net') toast('تعذّر التحقق من الاشتراك. تأكد من الإنترنت وجرّب مرة ثانية.');
+    else toast('ما قدرنا نتأكد من الاشتراك. جرّب «استرجاع المشتريات» بعد شوي.');
+  }
+  var IAP_NONE = ['expired', 'revoked', 'nouser', 'notfound', 'product', 'bundle'];
   function iapVerify(ids, loud, claim) {
     ids = (ids || []).filter(Boolean);
     if (!ids.length || !sb || !uid) return Promise.resolve(false);
     return sb.functions.invoke('iap', { body: { action: 'verify', ids: ids, claim: claim === true } }).then(function (r) {
-      if (r && r.data && r.data.active) return loadSub().then(function () { if (view === 'pay' || loud) { payState = 'done'; show('pay'); } return true; });
+      var d = r && r.data;
+      if (d && d.active) return loadSub().then(function () { if (view === 'pay' || loud) { payState = 'done'; show('pay'); } return true; });
       // one Apple subscription opens one Tanzeem account: say so instead of failing silently
-      if (r && r.data && r.data.why === 'owner' && (loud || view === 'pay')) { payState = ''; if (view === 'pay') renderPay(); toast('اشتراك Apple هذا مربوط بحساب تنظيم ثاني. اضغط «استرجاع المشتريات» عشان ينتقل لهذا الحساب.'); return false; }
-      if (loud) { payState = ''; if (view === 'pay') renderPay(); toast('ما قدرنا نتأكد من الاشتراك. جرّب «استرجاع المشتريات» بعد شوي.'); }
+      if (d && d.why === 'owner' && (loud || view === 'pay')) { payState = ''; if (view === 'pay') renderPay(); toast('اشتراك Apple هذا مربوط بحساب تنظيم ثاني. اضغط «استرجاع المشتريات» عشان ينتقل لهذا الحساب.'); return false; }
+      if (loud) iapMsg(loud, !d ? 'net' : (loud === 'restore' && IAP_NONE.indexOf(d.why) >= 0) ? 'none' : (loud === 'restore' ? 'net' : 'check'));
       return false;
-    }, function () { if (loud) { payState = ''; if (view === 'pay') renderPay(); toast('تعذّر التحقق من الاشتراك. تأكد من الإنترنت وجرّب مرة ثانية.'); } return false; });
+    }, function () { if (loud) iapMsg(loud, 'net'); return false; });
   }
   function iapSync(loud, claim) {
     if (!NP) return Promise.resolve(false);
     return NP.getPurchases({ productType: 'subs' }).then(function (r) {
       var ids = (r && r.purchases || []).filter(function (p) { return p.isActive !== false; }).map(function (p) { return String(p.transactionId || ''); });
-      if (!ids.length) { if (loud) { payState = ''; if (view === 'pay') renderPay(); toast('ما لقينا اشتراك سابق على حساب Apple هذا.'); } return false; }
+      ids = ids.filter(function (x, i) { return x && ids.indexOf(x) === i; });
+      if (!ids.length) { if (loud) iapMsg(loud, loud === 'restore' ? 'none' : 'check'); return false; }
       return iapVerify(ids, loud, claim);
-    }, function () { if (loud) { payState = ''; if (view === 'pay') renderPay(); toast('تعذّر الاتصال بـ Apple. تأكد من الإنترنت وجرّب مرة ثانية.'); } return false; });
+    }, function () { if (loud) iapMsg(loud, 'net'); return false; });
   }
   // sign-out can stall inside the iPad app (it waits on the server), which froze the screen; give it a few seconds, then finish locally either way
   // true when this device still has a working login (refreshing it if needed); never waits more than 6 seconds
@@ -1254,9 +1265,6 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
     document.body.classList.remove('focusmode'); document.body.style.overflow = '';
     wiped = false; authErr = ''; auth.step = 'id'; view = 'login';
     window.scrollTo(0, 0); render(); window.scrollTo(0, 0);
-    // the iPad web view sometimes paints only part of the sign-in screen after a long page is swapped out; redraw it
-    var redraw = function () { var a = document.querySelector('.au'); if (!a || a.contains(document.activeElement)) return; a.style.display = 'none'; void a.offsetHeight; a.style.display = ''; };
-    requestAnimationFrame(function () { requestAnimationFrame(redraw); }); setTimeout(redraw, 450);
     if (msg) setTimeout(function () { toast(msg); }, 300);
   }
   function devKick() {
@@ -1461,6 +1469,7 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
   }
   function renderNav() {
     var hideNav = view === 'study' || view === 'login' || (view === 'privacy' && !user);
+    document.body.classList.toggle('on-login', view === 'login');
     $('.app').classList.toggle('has-nav', !hideNav);
     var nav = $('#tabsBot');
     nav.hidden = hideNav;
@@ -2801,7 +2810,7 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
         return iapSync(false, true).then(function (ok) { if (!ok) { payState = ''; renderPay(); } else if (view === 'pay' && payState !== 'done') { payState = 'done'; show('pay'); } });
       });
     }
-    else if (act === 'iapRestore') { if (!NP) return; payState = 'busy'; renderPay(); NP.restorePurchases().then(function () { return iapSync(true, true); }, function () { return iapSync(true, true); }); }
+    else if (act === 'iapRestore') { if (!NP) return; payState = 'busy'; renderPay(); NP.restorePurchases().then(function () { return iapSync('restore', true); }, function () { return iapSync('restore', true); }); }
     else if (act === 'iapManage') { if (NP && NP.manageSubscriptions) NP.manageSubscriptions().catch(function () {}); }
     else if (act === 'manageSub') show('manage');
     else if (act === 'help') show('help');
@@ -3094,7 +3103,7 @@ details.ltr p { margin: 10px 0 2px; font: 400 14px/24px var(--f-en); color: var(
     'وش الملفات اللي أقدر أرفعها؟': 'Which files can I upload?', 'ملفات PDF وPowerPoint (PPTX)، وحجم الملف حتى 50 ميجابايت.': 'PDF and PowerPoint (PPTX) files, up to 50 MB each.', 'هل يشوف أحد ملفاتي؟': 'Can anyone see my files?', 'لا، ملفاتك وملاحظاتك خاصة بحسابك ولا يطّلع عليها غيرك.': 'No, your files and notes are private to your account.', 'كيف أتواصل معكم؟': 'How do I contact you?', 'راسلنا على الإيميل tanzeemm.app@gmail.com': 'Email us at tanzeemm.app@gmail.com',
     'مزوّدو الخدمات': 'Service providers', 'نستعين بمزوّدي خدمات موثوقين للاستضافة والتخزين ومعالجة المدفوعات وتشغيل بعض مزايا التطبيق، ويلتزمون بحماية بياناتك.': 'We use trusted service providers for hosting, storage, payment processing and running some app features, and they are committed to protecting your data.', 'آخر تحديث: 15 نوفمبر 2026.': 'Last updated: 15 November 2026.' });
   Object.assign(EN, { "اشتراك Apple هذا مربوط بحساب تنظيم ثاني. اضغط «استرجاع المشتريات» عشان ينتقل لهذا الحساب.": "This Apple subscription is linked to another Tanzeem account. Tap “Restore purchases” to move it to this account." });
-  Object.assign(EN, { "تلقائي كل شهر": "Automatically every month", "تلقائي كل سنة": "Automatically every year", "سياسة الاشتراك": "Subscription policy", "الدفع يتم عن طريق حساب Apple. الاشتراك يتجدد تلقائياً بنفس السعر، إلا إذا ألغيته قبل نهاية المدة بـ 24 ساعة على الأقل من إعدادات حسابك في Apple.": "Payment is charged to your Apple Account. The subscription renews automatically at the same price unless you cancel it at least 24 hours before the end of the period in your Apple Account settings.", "ما قدرنا نتأكد من الاشتراك. جرّب «استرجاع المشتريات» بعد شوي.": "We couldn’t confirm the subscription. Try “Restore purchases” in a moment.", "تعذّر التحقق من الاشتراك. تأكد من الإنترنت وجرّب مرة ثانية.": "Couldn’t verify the subscription. Check your internet connection and try again.", "ما لقينا اشتراك سابق على حساب Apple هذا.": "No previous subscription was found on this Apple Account.", "تعذّر الاتصال بـ Apple. تأكد من الإنترنت وجرّب مرة ثانية.": "Couldn’t reach Apple. Check your internet connection and try again." });
+  Object.assign(EN, { "تلقائي كل شهر": "Automatically every month", "تلقائي كل سنة": "Automatically every year", "سياسة الاشتراك": "Subscription policy", "الدفع يتم عن طريق حساب Apple. الاشتراك يتجدد تلقائياً بنفس السعر، إلا إذا ألغيته قبل نهاية المدة بـ 24 ساعة على الأقل من إعدادات حسابك في Apple.": "Payment is charged to your Apple Account. The subscription renews automatically at the same price unless you cancel it at least 24 hours before the end of the period in your Apple Account settings.", "ما قدرنا نتأكد من الاشتراك. جرّب «استرجاع المشتريات» بعد شوي.": "We couldn’t confirm the subscription. Try “Restore purchases” in a moment.", "تعذّر التحقق من الاشتراك. تأكد من الإنترنت وجرّب مرة ثانية.": "Couldn’t verify the subscription. Check your internet connection and try again.", "ما لقينا اشتراك فعّال على حساب Apple هذا.": "No active subscription was found on this Apple Account.", "تعذّر الاتصال بـ Apple. تأكد من الإنترنت وجرّب مرة ثانية.": "Couldn’t reach Apple. Check your internet connection and try again." });
   Object.assign(EN, { "سنوياً": "/ year", "شهرياً": "/ month", "يعادل نحو 13 ر.س شهرياً. يتجدد تلقائياً كل سنة.": "About SAR 13 a month. Renews automatically every year.", "يتجدد تلقائياً كل شهر.": "Renews automatically every month." });
   Object.assign(EN, { "تم حذف حسابك وكل بياناته.": "Your account and all its data were deleted.", "انتهت جلستك. سجّل دخولك مرة ثانية، وبعدها احذف الحساب.": "Your session expired. Sign in again, then delete the account.", "انتهت جلستك. سجّل دخولك مرة ثانية.": "Your session expired. Please sign in again.", "تم تسجيل الدخول لحسابك من جهاز آخر، فطلعناك من هذا الجهاز.": "Your account was signed in on another device, so you were signed out here." });
   Object.assign(EN, { "اشترك عن طريق Apple": "Subscribe with Apple", "استرجاع المشتريات": "Restore purchases", "جارٍ الاشتراك…": "Subscribing…", "إدارة الاشتراك في Apple": "Manage subscription in Apple", "تلقائي عن طريق Apple": "Automatic via Apple", "التجديد القادم": "Next renewal", "السعر": "Price" });
