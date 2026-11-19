@@ -294,12 +294,8 @@ html, body { touch-action: manipulation; -webkit-text-size-adjust: 100%; }
 .notes .n-h { display: flex; align-items: center; gap: 8px; }
 .notes .n-h b { font: 600 14px/20px var(--f-ar); }
 .notes .n-st { margin-inline-start: auto; font: 400 12px/18px var(--f-ar); color: var(--faint); }
-.notes .n-warn { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-radius: 12px; background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; font: 400 13px/20px var(--f-ar); }
+.notes .n-warn { margin: 0; padding: 8px 12px; border-radius: 10px; background: var(--chip); color: var(--muted); font: 400 13px/20px var(--f-ar); }
 .notes .n-warn[hidden] { display: none; }
-.notes .n-warn b { font: 700 14px/20px var(--f-ar); }
-.notes .n-warn button.link { align-self: flex-start; color: #991b1b !important; text-decoration: underline; padding: 0; }
-:root[data-theme="dark"] .notes .n-warn { background: #3b1414; border-color: #7f1d1d; color: #fecaca; }
-:root[data-theme="dark"] .notes .n-warn button.link { color: #fecaca !important; }
 .notes textarea { flex: 1; width: 100%; min-height: 200px; resize: none; border: 0; outline: none; padding: 0; background: repeating-linear-gradient(transparent, transparent 31px, var(--line) 31px, var(--line) 32px); background-attachment: local; font: 400 16px/32px var(--f-ar); color: var(--ink); }
 @media (max-width: 859px) { .work { flex-direction: column; } .work .slide { flex: none; width: 100%; align-self: center; } .notes { flex: none; } .deck.wn { max-width: max(480px, calc((100vh - var(--ch, 230px)) * 1.7778)); } }
 
@@ -2670,7 +2666,7 @@ body.on-login{margin:0;background:#0B3B2E}
     $('#view').innerHTML = '<div class="stage"><section class="deck"><div class="status"><span class="tzmark" aria-label="تنظيم"><span class="tzm-i"><svg viewBox="0 9 96 96" fill="none" stroke="#E5C26A" stroke-width="9" stroke-linecap="round" aria-hidden="true"><path d="M9 84V58A11 11 0 0 1 31 58V84"/><path d="M37 84V36A11 11 0 0 1 59 36V84"/><path d="M65 84V58A11 11 0 0 1 87 58V84"/><path d="M5 90H91"/></svg></span><b>تنظيم</b></span><span class="chip-ai" id="chip"></span><span class="hint">اضغط على أي كلمة في السلايد لترجمتها</span><button class="dn-btn" type="button" data-act="drNote" aria-expanded="false">✎ ملاحظات الدكتور</button></div>' +
       '<form class="dn-form" id="dnForm" hidden novalidate><textarea id="dnTxt" dir="auto" maxlength="1000" placeholder="مثلاً: الدكتور قال ركزوا على هذا، يجي في الاختبار" aria-label="ملاحظة الدكتور"></textarea><div class="dn-act"><button class="btn primary sm" type="submit">حفظ</button><button class="btn sm" type="button" data-act="drNoteX">إلغاء</button><span class="dn-hint">تنحفظ في ملاحظات الدكتور بصفحة المادة.</span></div></form>' + studyNotes() +
       inkBarHTML() + '<div class="work" id="work"><article class="slide scanning" id="slide" dir="ltr" lang="en" aria-label="السلايد"></article>' +
-      '<aside class="notes" id="notes" hidden aria-label="ملاحظات"><div class="n-h"><b id="nTitle"></b><span class="n-st" id="nSt" aria-live="polite"></span><button class="link" type="button" data-ink="notes">إغلاق</button></div><div class="n-warn" id="nWarn" hidden><b>⚠️ ملاحظاتك هنا ما تنحفظ</b><span>تنمسح إذا طلعت من الملف أو قفلت التطبيق. الحفظ للمشتركين.</span><button class="link" type="button" data-act="plan">جرّب الاشتراك</button></div><textarea id="nTxt" dir="auto" spellcheck="false" maxlength="5000" placeholder="اكتب ملاحظاتك على هذا السلايد…" aria-label="ملاحظات السلايد"></textarea></aside></div>' +
+      '<aside class="notes" id="notes" hidden aria-label="ملاحظات"><div class="n-h"><b id="nTitle"></b><span class="n-st" id="nSt" aria-live="polite"></span><button class="link" type="button" data-ink="notes">إغلاق</button></div><p class="n-warn" id="nWarn" hidden>ملاحظة: ترى ملاحظاتك ما تنحفظ هنا</p><textarea id="nTxt" dir="auto" spellcheck="false" maxlength="5000" placeholder="اكتب ملاحظاتك على هذا السلايد…" aria-label="ملاحظات السلايد"></textarea></aside></div>' +
       '<div class="tools"><button class="btn" id="prev" type="button" data-act="prev">' + I.arrowR + '<span>السابق</span></button>' +
       '<button class="btn" id="next" type="button" data-act="next"><span>التالي</span>' + I.arrowL + '</button>' +
       '<button class="btn cnt" id="cnt" type="button" data-act="jump" aria-label="كل السلايدات"></button>' +
@@ -3195,7 +3191,7 @@ body.on-login{margin:0;background:#0B3B2E}
     'نسيت كلمة السر؟': 'Forgot password?',
     'رقم الشابتر': 'Chapter number', 'اكتب رقم الشابتر (من 1 إلى 999).': 'Enter the chapter number (1 to 999).',
     'الكتابة والتظليل والملاحظات على السلايد': 'Writing, highlighting and notes on slides',
-    'جرّب الاشتراك وبيجيك شرح الكلمة المبسط.': 'Subscribe and you will get a simple explanation of the word.', 'شوف الاشتراك': 'See subscription', 'جرّب الاشتراك': 'Try subscribing', '⚠️ ملاحظاتك هنا ما تنحفظ': '⚠️ Your notes here are not saved', 'تنمسح إذا طلعت من الملف أو قفلت التطبيق. الحفظ للمشتركين.': 'They are erased when you leave the file or close the app. Saving is for subscribers.', 'تقدر تكتب هنا، بس ما تنحفظ بدون اشتراك.': 'You can write here, but notes are not saved without a subscription.', 'ما تنحفظ': 'Not saved',
+    'جرّب الاشتراك وبيجيك شرح الكلمة المبسط.': 'Subscribe and you will get a simple explanation of the word.', 'شوف الاشتراك': 'See subscription', 'جرّب الاشتراك': 'Try subscribing', 'ملاحظة: ترى ملاحظاتك ما تنحفظ هنا': 'Note: your notes are not saved here', 'تقدر تكتب هنا، بس ما تنحفظ بدون اشتراك.': 'You can write here, but notes are not saved without a subscription.', 'ما تنحفظ': 'Not saved',
     'الاشتراك يفتح قريباً. نعلمك أول ما يتفعل الدفع.': 'Subscriptions open soon. We will let you know as soon as payment is available.', 'أسئلة الذكاء الاصطناعي للمشتركين فقط.': 'AI questions are for subscribers only.',
     'اضغط عليها في السلايد وتظهر ترجمتها بحسب تخصص المادة، ويظهر معها شرح مبسط للمشتركين. أي كلمة في السلايد تقدر تضغط عليها.': 'Tap it on the slide and its translation appears, based on the course field, with a simple explanation for subscribers. You can tap any word on the slide.',
     'اضغط علامة الحفظ في بطاقة الترجمة، وتلقاها في صفحة كلماتي (ومعها تعريفها المبسط للمشتركين).': 'Tap the save icon on the translation card and you’ll find it in My words (with its simple definition for subscribers).',
