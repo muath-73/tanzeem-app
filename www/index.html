@@ -1117,7 +1117,7 @@ body.on-login{margin:0;background:#0B3B2E}
       var d = r && r.data;
       if (d && d.active) return loadSub().then(function () { if (view === 'pay' || loud) { payState = 'done'; show('pay'); } return true; });
       // one Apple subscription opens one Tanzeem account: say so instead of failing silently
-      if (d && d.why === 'owner' && (loud || view === 'pay')) { payState = ''; if (view === 'pay') renderPay(); toast('اشتراك Apple هذا مربوط بحساب تنظيم ثاني. اضغط «استرجاع المشتريات» عشان ينتقل لهذا الحساب.'); return false; }
+      if (d && d.why === 'owner' && loud) { payState = ''; if (view === 'pay') renderPay(); toast('اشتراك Apple هذا مربوط بحساب تنظيم ثاني. اضغط «استرجاع المشتريات» عشان ينتقل لهذا الحساب.'); return false; }
       if (loud) iapMsg(loud, !d ? 'net' : (loud === 'restore' && IAP_NONE.indexOf(d.why) >= 0) ? 'none' : (loud === 'restore' ? 'net' : 'check'));
       return false;
     }, function () { if (loud) iapMsg(loud, 'net'); return false; });
@@ -1292,7 +1292,7 @@ body.on-login{margin:0;background:#0B3B2E}
     freshLogin = false;
     clearInterval(devTimer); devTimer = setInterval(devCheck, 60000);
   }
-  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') { devCheck(); if (view === 'pay' && payQR) payCheck(false); if (NP && uid && view === 'pay') iapSync(false); } });
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') { devCheck(); if (view === 'pay' && payQR) payCheck(false); if (NP && uid && view === 'pay' && payState !== 'busy') iapSync(false); } });
 
   /* ---------- reminders (iPad app only) ---------- */
   var LN = (function () { try { var C = window.Capacitor; return C && C.isNativePlatform && C.isNativePlatform() && C.Plugins && C.Plugins.LocalNotifications || null; } catch (e) { return null; } })();
@@ -3211,6 +3211,7 @@ body.on-login{margin:0;background:#0B3B2E}
     var m, r;
     if ((m = c.match(/^(.+) مفتوحة للمشتركين\. وكل شيء كتبته قبل محفوظ عندك وتقدر تشوفه\.$/))) return (EN[m[1]] || m[1]) + ' is open to subscribers. Everything you wrote before is saved and you can still view it.';
     if ((m = c.match(/^باقي (\d+) أيام$/))) return m[1] + ' days left';
+    if ((m = c.match(/^اشتراكك فعّال · (الخطة الشهرية|الخطة السنوية) · ينتهي في (.+)\.$/))) return 'Your subscription is active · ' + (m[1] === 'الخطة السنوية' ? 'Yearly plan' : 'Monthly plan') + ' · ends on ' + m[2] + '.';
     if ((m = c.match(/^اشتراكك فعّال حتى (.+)\.$/))) return 'Your subscription is active until ' + m[1] + '.';
     if ((m = c.match(/^نقرأ السلايدات… (\d+) من (\d+)$/))) return 'Reading the slides… ' + m[1] + ' of ' + m[2];
     if ((m = c.match(/^ملاحظات السلايد (\d+)$/))) return 'Slide ' + m[1] + ' notes';
