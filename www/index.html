@@ -767,6 +767,7 @@ body.on-login{margin:0;background:#0B3B2E}
     var d = JSON.parse(localStorage.getItem('mueen.v2') || 'null');
     var n = d && d.settings && String(d.settings.name || '').trim();
     if (n) { var l = document.getElementById('tzsLine'); l.textContent = 'أهلاً فيك من جديد يا ' + n + ' 👋'; }
+    if (d && d.settings && d.settings.lang === 'en') { el.style.direction = 'ltr'; var t = el.querySelector('.t'); if (t) t.textContent = 'Your slides and lectures, made easier'; var w = el.querySelector('.w'); if (w) w.textContent = 'Tanzeem'; var hb = el.querySelector('.h b'); if (hb) hb.textContent = 'Tanzeem'; document.getElementById('tzsLine').textContent = n ? 'Welcome back, ' + n + ' 👋' : 'Study more organized, understand faster.'; }
   } catch (e) {}
   el.addEventListener('click', end);
   setTimeout(end, 3900);
@@ -1090,12 +1091,16 @@ body.on-login{margin:0;background:#0B3B2E}
   // Apple's price text follows the iPad's own language; in English mode show it as "SAR 18.00"
   function iapTxt(cy) { var d = cy === 'year' ? 159.99 : 18; if (settings.lang === 'en') return 'SAR ' + iapNum(iapPrice[cy], d).toFixed(2); return iapPrice[cy] || (d.toFixed(2) + ' ر.س'); }
   function iapSave() { var m = iapNum(iapPrice.month, 18), y = iapNum(iapPrice.year, 159.99), full = m * 12; return { amt: Math.max(0, Math.round(full - y)), pct: Math.max(0, Math.round((1 - y / full) * 100)) }; }
+  // asked once at a time; if Apple returns nothing, try again at most every 30 seconds (never in a loop with the page redraw)
+  var iapLoading = false, iapTried = 0;
   function iapLoad() {
-    if (!NP) return Promise.resolve();
+    if (!NP || iapLoading || Date.now() - iapTried < 30000) return Promise.resolve();
+    iapLoading = true; iapTried = Date.now();
     return NP.getProducts({ productIdentifiers: [IAP_ID.month, IAP_ID.year], productType: 'subs' }).then(function (r) {
       (r && r.products || []).forEach(function (p) { var k = p.identifier === IAP_ID.month ? 'month' : p.identifier === IAP_ID.year ? 'year' : ''; if (k) iapPrice[k] = p.priceString || ''; });
+      iapLoading = false;
       if (view === 'pay') renderPay(); else if (view === 'plan') renderPlan();
-    }, function () {});
+    }, function () { iapLoading = false; });
   }
   // loud: true = right after buying, 'restore' = the restore button, false = quiet background check
   function iapMsg(loud, kind) {
@@ -1263,7 +1268,7 @@ body.on-login{margin:0;background:#0B3B2E}
     S = null; stu = null; delConfirm = false; pwOpen = false; adding = false;
     var m = document.getElementById('modal'); if (m) m.hidden = true; var tz = document.getElementById('tzm'); if (tz) tz.remove();
     document.body.classList.remove('focusmode'); document.body.style.overflow = '';
-    wiped = false; authErr = ''; auth.step = 'id'; view = 'login';
+    wiped = false; authErr = ''; auth.step = 'id'; auth.up = false; view = 'login';
     window.scrollTo(0, 0); render(); window.scrollTo(0, 0);
     if (msg) setTimeout(function () { toast(msg); }, 300);
   }
@@ -3206,6 +3211,8 @@ body.on-login{margin:0;background:#0B3B2E}
     var m, r;
     if ((m = c.match(/^(.+) مفتوحة للمشتركين\. وكل شيء كتبته قبل محفوظ عندك وتقدر تشوفه\.$/))) return (EN[m[1]] || m[1]) + ' is open to subscribers. Everything you wrote before is saved and you can still view it.';
     if ((m = c.match(/^باقي (\d+) أيام$/))) return m[1] + ' days left';
+    if ((m = c.match(/^اشتراكك فعّال حتى (.+)\.$/))) return 'Your subscription is active until ' + m[1] + '.';
+    if ((m = c.match(/^نقرأ السلايدات… (\d+) من (\d+)$/))) return 'Reading the slides… ' + m[1] + ' of ' + m[2];
     if ((m = c.match(/^ملاحظات السلايد (\d+)$/))) return 'Slide ' + m[1] + ' notes';
     if ((m = c.match(/^رقم الشابتر (\d+) موجود عندك\. اختر رقماً ثانياً\.$/))) return 'Chapter number ' + m[1] + ' is already used. Pick another number.';
     if ((m = c.match(/^اشتراكك فعّال · (.+) · يتجدد في (.+)\.$/))) return 'Your subscription is active · ' + (EN[m[1]] || m[1]) + ' · renews on ' + m[2] + '.';
@@ -3276,7 +3283,7 @@ body.on-login{margin:0;background:#0B3B2E}
     while ((n = w.nextNode())) if (n.__ar !== undefined) { n.nodeValue = n.__ar; n.__ar = undefined; }
     document.querySelectorAll('*').forEach(function (el) { if (el.__a) { Object.keys(el.__a).forEach(function (k) { el.setAttribute(k, el.__a[k]); }); el.__a = null; } });
   }
-  Object.assign(EN, { 'مذاكرتك أرتب، وفهمك أسرع.': 'Study more organized, understand faster.', 'تسجيل الدخول': 'Sign in', 'دخول': 'Sign in', 'حفظ ودخول': 'Save and sign in', 'الإيميل': 'Email', 'كلمة المرور': 'Password', 'نسيت كلمة المرور؟': 'Forgot password?', 'ما عندك حساب؟': 'No account?', 'سجّل الحين': 'Sign up now', 'عندك حساب؟': 'Have an account?', 'سجّل دخول': 'Sign in', 'نسخ الرابط': 'Copy link', 'وفّر 26%': 'Save 26%', 'تلغيه من إعدادات حسابك في Apple، ويبقى فعّالاً حتى نهاية المدة المدفوعة.': 'Cancel it in your Apple account settings; it stays active until the end of the paid period.', 'تم تفعيل كود الدعوة.': 'Invite code applied.', 'إذا سجّل 10 من أصحابك بكودك، تحصل على سنة كاملة بكل المزايا. وتنحسب الدعوة أول ما يفعّل صاحبك حسابه.': 'When 10 friends sign up with your code, you get a full year with every feature. An invite counts once your friend activates their account.', 'سنوي · وفّر 47%': 'Yearly · save 47%', 'توفّر نحو 140 ر.س بالسنة مقارنة بالشهري': 'Save about 140 SAR a year compared with monthly', 'سنوي · وفّر 26%': 'Yearly · save 26%', 'يعادل نحو 13 ر.س شهرياً.': 'About SAR 13 a month.',
+  Object.assign(EN, { 'مذاكرتك أرتب، وفهمك أسرع.': 'Study more organized, understand faster.', 'تسجيل الدخول': 'Sign in', 'نجهّز السلايدات…': 'Preparing the slides…', 'نحمّل الملف ونقرأه على جهازك.': 'Downloading the file and reading it on your device.', 'دخول': 'Sign in', 'حفظ ودخول': 'Save and sign in', 'الإيميل': 'Email', 'كلمة المرور': 'Password', 'نسيت كلمة المرور؟': 'Forgot password?', 'ما عندك حساب؟': 'No account?', 'سجّل الحين': 'Sign up now', 'عندك حساب؟': 'Have an account?', 'سجّل دخول': 'Sign in', 'نسخ الرابط': 'Copy link', 'وفّر 26%': 'Save 26%', 'تلغيه من إعدادات حسابك في Apple، ويبقى فعّالاً حتى نهاية المدة المدفوعة.': 'Cancel it in your Apple account settings; it stays active until the end of the paid period.', 'تم تفعيل كود الدعوة.': 'Invite code applied.', 'إذا سجّل 10 من أصحابك بكودك، تحصل على سنة كاملة بكل المزايا. وتنحسب الدعوة أول ما يفعّل صاحبك حسابه.': 'When 10 friends sign up with your code, you get a full year with every feature. An invite counts once your friend activates their account.', 'سنوي · وفّر 47%': 'Yearly · save 47%', 'توفّر نحو 140 ر.س بالسنة مقارنة بالشهري': 'Save about 140 SAR a year compared with monthly', 'سنوي · وفّر 26%': 'Yearly · save 26%', 'يعادل نحو 13 ر.س شهرياً.': 'About SAR 13 a month.',
     'يعادل نحو 13 ر.س شهرياً. يتجدد تلقائياً كل سنة.': 'About SAR 13 a month. Renews automatically every year.', 'يتجدد تلقائياً كل شهر.': 'Renews automatically every month.',
     'عندك كوبون؟': 'Have a coupon?', 'تطبيق': 'Apply', 'إزالة': 'Remove', 'تم تطبيق الكوبون ✓': 'Coupon applied ✓', 'خصم دعوة صاحبك': 'Friend invite discount', 'كوبون': 'Coupon',
     'الكوبون غير صحيح أو منتهي.': 'That coupon isn’t valid or has expired.', 'تعذّر التحقق من الكوبون. تأكد من الإنترنت وجرّب مرة ثانية.': 'Couldn’t check the coupon. Check your connection and try again.',
