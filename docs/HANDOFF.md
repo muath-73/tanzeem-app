@@ -105,3 +105,15 @@ Playwright with a Supabase stub (no network). `h.js` serves `../$V` relative to 
 - 2000 users on Free Supabase → storage/egress/function quotas run out; Pro fixes it.
 - Apple: cancelling the current review restarts review; adding iPhone requires a new build — so do it as update 1.1.
 - Netlify deploys cost credits (free 300/month); user batches deploys and planned the $9 Personal plan.
+
+---
+
+## 10. Update 20 Nov 2026 (evening) — v76 on branch `v76-solve-iphone` (NOT merged to main, NOT built)
+
+- **«صوّر وحل» built for real** in `www/index.html` (and `site/app.html`): middle tab, start / loading / answers / limit / free screens, several pages at once, photos shrunk on device (max 1800 px JPEG) and sent once; nothing stored. Answers `1 - (c)`, `a - خطأ (False)`, steps rendered with **KaTeX bundled locally** (`www/lib/katex`, `site/lib/katex`). English UI strings added. Version label 1.1.
+- **Edge function `solve` v3 deployed** (verify_jwt on): subscription check, 15 pages/week (`bump_solve` / `refund_solve` / `solve_week_start` RPCs, counter in `ai_usage` task 'solve', week starts Sunday Riyadh), failed/unclear/no-question pages refunded. Source: `supabase/functions/solve`. Test hook present but OFF (`TEST_HASH = ""`).
+- Accuracy test (Haiku 5.5): 4 realistic worksheet photos (`tools/qa/solve-samples`) → 22/22 correct, 3–6 s per page, ≈3k input + 0.5–1.4k output tokens. Real internet photos: history exam paper (essay answers OK), MathVision-Wild photos 4/5 (hard visual puzzles).
+- `codemagic.yaml` (branch only): iPhone + iPad (`TARGETED_DEVICE_FAMILY "1,2"`), `MARKETING_VERSION 1.1`, `NSCameraUsageDescription` + `NSPhotoLibraryUsageDescription`. Not verified on a Mac build yet.
+- QA: `tools/qa/sv3.js` (+ `sv-fixtures.js`, stub handles `solve`). t89 + ph still pass.
+- **Dictionary review done**: all 30,309 non-ambiguous `term_cache` entries checked (Haiku pass → 730 flagged → Sonnet 5.5 second opinion) → **587 entries corrected**; 143 kept. Also `rest`/`np` (eng, CS) set ambiguous, `2030` removed. Old values in `term_cache_backup_v76`; details in `term_review` (verdict, why). One-off function `term-review` now returns 410. Cost < $1.5.
+- To ship: after Apple approves 1.0 → merge branch to main → Codemagic build → iPhone screenshots → submit 1.1; deploy `site/` to Netlify. A scheduled reminder fires 1 Dec 2026 10:00 Riyadh.
