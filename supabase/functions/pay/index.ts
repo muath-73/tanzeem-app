@@ -13,9 +13,10 @@ function cors(req: Request) {
   return h;
 }
 // prices in halalas (1 SAR = 100)
-// v:3 pages (current site) show 18/159; v:2 pages (the site still live before the upload) showed 25/159
+// v:4 pages (v76 site) show 20/170; v:3 pages show 18/159; v:2 pages (the site still live before the upload) showed 25/159
 const PRICE: Record<string, number> = { month: 1800, year: 15900 };
 const PRICE_V2: Record<string, number> = { month: 2500, year: 15900 };
+const PRICE_V4: Record<string, number> = { month: 2000, year: 17000 };
 // pages from before the price change (they send no "v") keep their old price until the new site is uploaded,
 // so a student never pays a different amount from the one shown
 const OLD_PRICE: Record<string, number> = { month: 1900, year: 14900 };
@@ -43,7 +44,7 @@ function couponOk(code: string) {
 // the price this user pays for this cycle now. Coupon and invite discount never stack: the lower one wins.
 async function quote(admin: ReturnType<typeof createClient>, uid: string, cycle: string, rawCoupon: unknown, ver = 3) {
   if (ver < 2) return { amount: OLD_PRICE[cycle], base: OLD_PRICE[cycle], kind: "", coupon: "", couponErr: false };
-  const P = ver === 2 ? PRICE_V2 : PRICE, CP = ver === 2 ? COUPONS_V2 : COUPONS;
+  const P = ver === 4 ? PRICE_V4 : ver === 2 ? PRICE_V2 : PRICE, CP = ver === 2 ? COUPONS_V2 : COUPONS;
   const base = P[cycle];
   const code = String(rawCoupon ?? "").trim().toUpperCase().slice(0, 32);
   let amount = base, kind = "", couponErr = false;
@@ -108,12 +109,12 @@ Deno.serve(async (req: Request) => {
     const cycle = b.cycle === "month" ? "month" : "year";
 
     if (b.action === "quote") {
-      const q = await quote(admin, uid, cycle, b.coupon, b.v === 3 ? 3 : b.v === 2 ? 2 : 1);
+      const q = await quote(admin, uid, cycle, b.coupon, b.v === 4 ? 4 : b.v === 3 ? 3 : b.v === 2 ? 2 : 1);
       return reply({ cycle, amount: q.amount / 100, base: q.base / 100, kind: q.kind, coupon: q.coupon, couponErr: q.couponErr });
     }
 
     if (b.action === "create") {
-      const q = await quote(admin, uid, cycle, b.coupon, b.v === 3 ? 3 : b.v === 2 ? 2 : 1);
+      const q = await quote(admin, uid, cycle, b.coupon, b.v === 4 ? 4 : b.v === 3 ? 3 : b.v === 2 ? 2 : 1);
       if (q.couponErr) return reply({ error: "coupon" }, 400);
       // reuse an unpaid invoice from the last hour (same cycle and same price) so repeated taps don't pile up
       const since = new Date(Date.now() - 3600e3).toISOString();

@@ -1142,15 +1142,16 @@ body.on-login{margin:0;background:#0B3B2E}
   var plan = null, cycle = 'year', payMethod = 'apple', payState = '', editC = false, renIdx = -1, undoFn = null, aiCache = {}, delConfirm = false, pwOpen = false, wiped = false, recovering = /type=recovery/.test(location.hash);
   var IS_NATIVE = (function () { try { var C = window.Capacitor; return !!(C && C.isNativePlatform && C.isNativePlatform()); } catch (e) { return false; } })();
   // website payments go through Moyasar hosted invoices; the iPad app will use Apple in-app purchase instead
-  var PRICE = { month: 18, year: 159 }, PAY_OPEN = true, payCoupon = '', payQuote = null, payQuoteKey = '', payCouponMsg = '', payInv = null, payQR = false, payPollT = null, payPollUntil = 0;
+  var PRICE = { month: 20, year: 170 }, PAY_OPEN = true, payCoupon = '', payQuote = null, payQuoteKey = '', payCouponMsg = '', payInv = null, payQR = false, payPollT = null, payPollUntil = 0;
   // iPad app: subscriptions go through Apple (StoreKit), never through the website checkout
   var NP = (function () { try { var C = window.Capacitor; return IS_NATIVE && C.Plugins && C.Plugins.NativePurchases || null; } catch (e) { return null; } })();
   var IAP_ID = { month: 'sa.tanzeem.app.monthly', year: 'sa.tanzeem.app.yearly' }, iapPrice = {};
   // iPad: the yearly saving is worked out from Apple's own prices, so it stays right whatever Apple charges
   function iapNum(t, d) { var n = parseFloat(String(t || '').replace(/[٠-٩]/g, function (c) { return '٠١٢٣٤٥٦٧٨٩'.indexOf(c); }).replace(/٫/g, '.').replace(/[^0-9.]/g, '')); return n > 0 ? n : d; }
   // Apple's price text follows the iPad's own language; in English mode show it as "SAR 18.00"
-  function iapTxt(cy) { var d = cy === 'year' ? 159.99 : 18; if (settings.lang === 'en') return 'SAR ' + iapNum(iapPrice[cy], d).toFixed(2); return iapPrice[cy] || (d.toFixed(2) + ' ر.س'); }
-  function iapSave() { var m = iapNum(iapPrice.month, 18), y = iapNum(iapPrice.year, 159.99), full = m * 12; return { amt: Math.max(0, Math.round(full - y)), pct: Math.max(0, Math.round((1 - y / full) * 100)) }; }
+  function iapTxt(cy) { var d = cy === 'year' ? 170 : 20; if (settings.lang === 'en') return 'SAR ' + iapNum(iapPrice[cy], d).toFixed(2); return iapPrice[cy] || (d.toFixed(2) + ' ر.س'); }
+  function perMonth() { return Math.round((IS_NATIVE ? iapNum(iapPrice.year, 170) : PRICE.year) / 12); }
+  function iapSave() { var m = iapNum(iapPrice.month, 20), y = iapNum(iapPrice.year, 170), full = m * 12; return { amt: Math.max(0, Math.round(full - y)), pct: Math.max(0, Math.round((1 - y / full) * 100)) }; }
   // asked once at a time; if Apple returns nothing, try again at most every 30 seconds (never in a loop with the page redraw)
   var iapLoading = false, iapTried = 0;
   function iapLoad() {
@@ -2147,8 +2148,8 @@ body.on-login{margin:0;background:#0B3B2E}
     function paid(cy) {
       var cur = subscribed && plan && plan.cycle === cy, yearly = cy === 'year';
       return '<article class="plan pro' + (cur ? ' on' : '') + '"><div class="pl-h"><h3>' + (yearly ? 'مشترك · سنوي' : 'مشترك · شهري') + '</h3>' + (cur ? curBadge : yearly ? '<span class="badge ok">⭐ ننصحك فيه</span>' : '') + '</div>' +
-        (IS_NATIVE ? '<div><div class="price"><b dir="ltr">' + esc(iapTxt(cy)) + '</b><span>' + (yearly ? 'سنوياً' : 'شهرياً') + '</span></div><p class="price-n">' + (yearly ? 'يعادل نحو 13 ر.س شهرياً. يتجدد تلقائياً كل سنة.' : 'يتجدد تلقائياً كل شهر.') + '</p>' + (yearly ? '<p class="price-n" style="color:var(--ok,#059669);font-weight:600;margin-top:4px">توفّر نحو ' + iapSave().amt + ' ر.س بالسنة مقارنة بالشهري</p>' : '') + '</div>'
-        : '<div><div class="price"><b>' + PRICE[cy] + '</b><span>ر.س ' + (yearly ? 'سنوياً' : 'شهرياً') + '</span></div><p class="price-n">' + (yearly ? 'يعادل نحو 13 ر.س شهرياً.' : 'بدون تجديد تلقائي.') + '</p>' + (yearly ? '<p class="price-n" style="color:var(--ok,#059669);font-weight:600;margin-top:4px">توفّر أكثر من 55 ر.س بالسنة مقارنة بالشهري</p>' : '') + '</div>') +
+        (IS_NATIVE ? '<div><div class="price"><b dir="ltr">' + esc(iapTxt(cy)) + '</b><span>' + (yearly ? 'سنوياً' : 'شهرياً') + '</span></div><p class="price-n">' + (yearly ? 'يعادل نحو ' + perMonth() + ' ر.س شهرياً. يتجدد تلقائياً كل سنة.' : 'يتجدد تلقائياً كل شهر.') + '</p>' + (yearly ? '<p class="price-n" style="color:var(--ok,#059669);font-weight:600;margin-top:4px">توفّر نحو ' + iapSave().amt + ' ر.س بالسنة مقارنة بالشهري</p>' : '') + '</div>'
+        : '<div><div class="price"><b>' + PRICE[cy] + '</b><span>ر.س ' + (yearly ? 'سنوياً' : 'شهرياً') + '</span></div><p class="price-n">' + (yearly ? 'يعادل نحو ' + perMonth() + ' ر.س شهرياً.' : 'بدون تجديد تلقائي.') + '</p>' + (yearly ? '<p class="price-n" style="color:var(--ok,#059669);font-weight:600;margin-top:4px">توفّر ' + (PRICE.month * 12 - PRICE.year) + ' ر.س بالسنة مقارنة بالشهري</p>' : '') + '</div>') +
         '<div style="flex:1">' + planFeats(['رفع سلايدات كل المواد والشباتر', 'ترجمة أي كلمة بالضغط عليها', 'حفظ الكلمات ومراجعتها', 'الشرح المبسط تحت ترجمة كل كلمة', 'الكتابة والتظليل على السلايد', 'الملاحظات بجانب السلايد', 'كود أسئلة جاهز من سلايداتك وملاحظاتك']) + '</div>' +
         '<button class="btn ' + (yearly ? 'ai' : 'primary') + '" type="button" data-act="subscribe" data-plc="' + cy + '">' + (cur ? 'جدّد اشتراكك' : subscribed && !trial ? 'غيّر إلى هذه الخطة' : 'اشترك الآن') + '</button>' + '</article>';
     }
@@ -2167,7 +2168,7 @@ body.on-login{margin:0;background:#0B3B2E}
     }
     if (!iapPrice.month && !iapPrice.year) iapLoad();
     var price = iapTxt(cycle), busy = payState === 'busy';
-    $('#view').innerHTML = '<div class="page narrow">' + back + '<section><h1 class="sec-h pg-h">الاشتراك</h1></section><div class="cyc" role="radiogroup" aria-label="مدة الاشتراك"><button type="button" role="radio" aria-checked="' + (cycle === 'month') + '" data-cyc="month">شهري</button><button type="button" role="radio" aria-checked="' + (cycle === 'year') + '" data-cyc="year">سنوي · وفّر ' + iapSave().pct + '%</button></div>' +
+    $('#view').innerHTML = '<div class="page narrow">' + back + '<section><h1 class="sec-h pg-h">الاشتراك</h1></section><div class="cyc" role="radiogroup" aria-label="مدة الاشتراك"><button type="button" role="radio" aria-checked="' + (cycle === 'month') + '" data-cyc="month">شهري</button><button type="button" role="radio" aria-checked="' + (cycle === 'year') + '" data-cyc="year">سنوي · وفّر ' + (IS_NATIVE ? iapSave().pct : Math.round((1 - PRICE.year / (PRICE.month * 12)) * 100)) + '%</button></div>' +
       '<div class="slist" style="padding:4px 16px"><div class="sumrow"><span>الخطة</span><b>' + (cycle === 'year' ? 'مشترك · سنوي' : 'مشترك · شهري') + '</b></div><div class="sumrow"><span>السعر</span><b dir="ltr">' + esc(price) + '</b></div><div class="sumrow"><span>التجديد</span><span>تلقائي ' + (cycle === 'year' ? 'كل سنة' : 'كل شهر') + '</span></div></div>' +
       '<button class="btn primary" type="button" data-act="iapBuy"' + (busy || !NP ? ' disabled' : '') + '>' + (busy ? 'جارٍ الاشتراك…' : 'اشترك عن طريق Apple') + '</button>' +
       '<button class="btn" type="button" data-act="iapRestore"' + (busy || !NP ? ' disabled' : '') + '>استرجاع المشتريات</button>' +
@@ -2203,7 +2204,7 @@ body.on-login{margin:0;background:#0B3B2E}
   }
   function payInvoice() {
     if (payInv && payInv.key === quoteKey()) return Promise.resolve(payInv);
-    return sb.functions.invoke('pay', { body: { action: 'create', cycle: cycle, coupon: payCoupon, v: 3 } }).then(function (r) {
+    return sb.functions.invoke('pay', { body: { action: 'create', cycle: cycle, coupon: payCoupon, v: 4 } }).then(function (r) {
       if (!r || r.error || !r.data || !r.data.url) throw new Error('create');
       payInv = { key: quoteKey(), cycle: cycle, id: r.data.id, url: r.data.url }; return payInv;
     });
@@ -2224,7 +2225,7 @@ body.on-login{margin:0;background:#0B3B2E}
   function payQuoteLoad() {
     var k = quoteKey(); payQuoteKey = k;
     if (!sb || !uid) return Promise.resolve(null);
-    return sb.functions.invoke('pay', { body: { action: 'quote', cycle: cycle, coupon: payCoupon, v: 3 } }).then(function (r) {
+    return sb.functions.invoke('pay', { body: { action: 'quote', cycle: cycle, coupon: payCoupon, v: 4 } }).then(function (r) {
       var d = r && r.data;
       if (!d || typeof d.amount !== 'number') { if (payQuoteKey === k) payQuoteKey = ''; return null; }
       if (k !== quoteKey()) return d;
@@ -2258,7 +2259,7 @@ body.on-login{margin:0;background:#0B3B2E}
     var qr = payQR && payInv ? '<div class="slist" style="padding:18px 16px;text-align:center"><div id="payQr" style="display:inline-block;background:#fff;padding:8px;border-radius:12px;max-width:240px;min-height:120px"></div>' +
       '<p class="sec-p" style="margin-top:10px">صوّر الرمز بكاميرا جوالك، وادفع من هناك بـ Apple Pay أو مدى.</p><p class="price-n">أول ما تدفع، يتفعّل اشتراكك هنا تلقائياً. ننتظر الدفع…</p>' +
       '<button class="btn" type="button" data-act="payCheck">دفعت؟ تحقق الحين</button></div>' : '';
-    $('#view').innerHTML = '<div class="page narrow">' + back + '<section><h1 class="sec-h pg-h">إتمام الاشتراك</h1></section><div class="cyc" role="radiogroup" aria-label="مدة الاشتراك"><button type="button" role="radio" aria-checked="' + (cycle === 'month') + '" data-cyc="month">شهري</button><button type="button" role="radio" aria-checked="' + (cycle === 'year') + '" data-cyc="year">سنوي · وفّر 26%</button></div>' +
+    $('#view').innerHTML = '<div class="page narrow">' + back + '<section><h1 class="sec-h pg-h">إتمام الاشتراك</h1></section><div class="cyc" role="radiogroup" aria-label="مدة الاشتراك"><button type="button" role="radio" aria-checked="' + (cycle === 'month') + '" data-cyc="month">شهري</button><button type="button" role="radio" aria-checked="' + (cycle === 'year') + '" data-cyc="year">سنوي · وفّر ' + Math.round((1 - PRICE.year / (PRICE.month * 12)) * 100) + '%</button></div>' +
       '<div class="slist" style="padding:4px 16px"><div class="sumrow"><span>الخطة</span><b>' + (cycle === 'year' ? 'مشترك · سنوي' : 'مشترك · شهري') + '</b></div><div class="sumrow"><span>المدة</span><span>' + (cycle === 'year' ? 'سنة كاملة' : 'شهر كامل') + '، وما يتجدد تلقائياً</span></div>' + disc + '<div class="sumrow"><span>الإجمالي</span><b>' + amt + '</b></div></div>' + cpn +
       (payState === 'err' ? '<div class="nb"><span>تعذّر فتح صفحة الدفع. تأكد من الإنترنت وجرّب مرة ثانية.</span></div>' : '') +
       '<button class="btn primary" type="button" data-act="payGo"' + (busy ? ' disabled' : '') + '>' + (payState === 'busy' ? 'نجهّز صفحة الدفع…' : 'ادفع ' + amt) + '</button>' +
@@ -2281,11 +2282,12 @@ body.on-login{margin:0;background:#0B3B2E}
   function renderPrivacy() {
     var sec = function (t, ps) { return '<div><h2>' + t + '</h2>' + ps.map(function (x) { return '<p>' + x + '</p>'; }).join('') + '</div>'; };
     var back = user ? '<button class="link backlink" type="button" data-act="tab" data-tab="settings">' + I.arrowR + '<span>الإعدادات</span></button>' : '<button class="link backlink" type="button" data-act="toLogin">' + I.arrowR + '<span>رجوع</span></button>';
-    $('#view').innerHTML = '<div class="page narrow">' + back + '<section><h1 class="sec-h pg-h">الخصوصية والشروط</h1><p class="sec-p">آخر تحديث: 15 نوفمبر 2026.</p></section><div class="legal">' +
+    $('#view').innerHTML = '<div class="page narrow">' + back + '<section><h1 class="sec-h pg-h">الخصوصية والشروط</h1><p class="sec-p">آخر تحديث: 20 نوفمبر 2026.</p></section><div class="legal">' +
       '<div><h2>أولاً: سياسة الخصوصية</h2></div>' +
       sec('البيانات التي نجمعها', ['بريدك الإلكتروني وكلمة المرور (تُحفظ مشفّرة)، واسمك.', 'موادك الدراسية، وملفات السلايدات التي ترفعها، وملاحظاتك، والكلمات التي تحفظها، وإعداداتك.']) +
       sec('كيف نستخدمها', ['لتشغيل التطبيق، وحفظ موادك ومزامنتها، وترجمة المصطلحات.', 'لا نبيع بياناتك، ولا نستخدمها للإعلانات.']) +
       sec('الترجمة بالذكاء الاصطناعي', ['عند الضغط على مصطلح، نرسل المصطلح والجملة التي ورد فيها إلى مزوّد خدمة ذكاء اصطناعي لترجمته، دون إرسال اسمك أو بريدك.', 'قد تحتوي الترجمة على أخطاء، فراجعها عند الحاجة.']) +
+      sec('صوّر وحل', ['عند استخدام «صوّر وحل»، نرسل صورة الورقة إلى مزوّد خدمة ذكاء اصطناعي لاستخراج إجاباتها فقط، دون إرسال اسمك أو بريدك.', 'لا نحفظ الصورة في التطبيق ولا على خوادمنا، وتُحذف بعد الحل مباشرة. ونستخدم الكاميرا والألبوم فقط عندما تختار تصوير ورقة أو اختيار صورة.', 'قد تحتوي الإجابات على أخطاء، فراجعها قبل الاعتماد عليها.']) +
       sec('حفظ البيانات', ['تُحفظ بياناتك على خدمات سحابية موثوقة، وقد تكون خوادمها خارج المملكة. وملفاتك وملاحظاتك خاصة بحسابك ولا يطّلع عليها غيرك.']) +
       sec('مزوّدو الخدمات', ['نستعين بمزوّدي خدمات موثوقين للاستضافة والتخزين ومعالجة المدفوعات وتشغيل بعض مزايا التطبيق، ويلتزمون بحماية بياناتك.', 'لا نشارك بياناتك مع أي جهة أخرى، ولا نبيعها.']) +
       sec('الحذف وحقوقك', ['يمكنك حذف أي ملف أو مادة، أو حذف حسابك من الإعدادات فتُحذف جميع بياناتك نهائياً.', 'لك حق الاطلاع على بياناتك وتصحيحها وحذفها، وفق نظام حماية البيانات الشخصية في المملكة العربية السعودية.', 'للتواصل معنا بخصوص بياناتك أو أي استفسار: الإيميل tanzeemm.app@gmail.com']) +
@@ -3408,6 +3410,7 @@ body.on-login{margin:0;background:#0B3B2E}
     '🔒 ما نحفظ صورك. تنحذف بعد الحل مباشرة.': '🔒 We don’t keep your photos. They are deleted right after solving.', 'صوّر أي ورقة وخذ إجاباتها مرتبة': 'Snap any paper and get its answers, neatly organized', 'خلصت أوراق هذا الأسبوع': 'You’ve used this week’s pages',
     'نقرأ الورقة ونحلها...': 'Reading and solving the page...', 'عادةً تاخذ ثواني': 'Usually takes a few seconds', 'ورقة ثانية': 'Another page', 'ℹ️ الإجابات من الذكاء الاصطناعي، وممكن يكون فيها أخطاء. راجعها قبل ما تعتمد عليها.': 'ℹ️ Answers come from AI and may contain mistakes. Check them before relying on them.',
     'الصورة مو واضحة. صوّرها مرة ثانية والورقة كاملة والإضاءة زينة.': 'The photo isn’t clear. Take it again with the whole page in view and good light.', 'ما لقينا أسئلة في هذي الصورة.': 'We couldn’t find any questions in this photo.', 'ما حلينا هذي الصفحة لأن أوراق هذا الأسبوع خلصت.': 'This page wasn’t solved because this week’s pages are used up.', 'ما قدرنا نحل هذي الصفحة. جرّب مرة ثانية، وما راح تنحسب عليك.': 'We couldn’t solve this page. Try again; it won’t count against you.', 'صح (True)': 'True', 'خطأ (False)': 'False',
+    'آخر تحديث: 20 نوفمبر 2026.': 'Last updated: 20 November 2026.', 'عند استخدام «صوّر وحل»، نرسل صورة الورقة إلى مزوّد خدمة ذكاء اصطناعي لاستخراج إجاباتها فقط، دون إرسال اسمك أو بريدك.': 'When you use “Snap & solve”, we send the photo of the page to an AI service provider only to get its answers, without your name or email.', 'لا نحفظ الصورة في التطبيق ولا على خوادمنا، وتُحذف بعد الحل مباشرة. ونستخدم الكاميرا والألبوم فقط عندما تختار تصوير ورقة أو اختيار صورة.': 'We don’t keep the photo in the app or on our servers; it is deleted right after solving. We use the camera and photo library only when you choose to photograph a page or pick a photo.', 'قد تحتوي الإجابات على أخطاء، فراجعها قبل الاعتماد عليها.': 'Answers may contain mistakes, so check them before relying on them.',
     'رقم الشابتر': 'Chapter number', 'اكتب رقم الشابتر (من 1 إلى 999).': 'Enter the chapter number (1 to 999).',
     'الكتابة والتظليل والملاحظات على السلايد': 'Writing, highlighting and notes on slides',
     'جرّب الاشتراك وبيجيك شرح الكلمة المبسط.': 'Subscribe and you will get a simple explanation of the word.', 'شوف الاشتراك': 'See subscription', 'جرّب الاشتراك': 'Try subscribing', 'ملاحظة: ترى ملاحظاتك ما تنحفظ هنا': 'Note: your notes are not saved here', 'تقدر تكتب هنا، بس ما تنحفظ بدون اشتراك.': 'You can write here, but notes are not saved without a subscription.', 'ما تنحفظ': 'Not saved',
@@ -3464,6 +3467,10 @@ body.on-login{margin:0;background:#0B3B2E}
     if ((m = c.match(/^(.+) · السلايد (\d+) من (\d+)$/))) return (EN[m[1]] || m[1]) + ' · Slide ' + m[2] + ' of ' + m[3];
     if ((m = c.match(/^(.+) · الشابتر (\d+)$/))) return m[1] + ' · Chapter ' + m[2];
     if ((m = c.match(/^توفّر نحو (\d+) ر\.س بالسنة مقارنة بالشهري$/))) return 'Save about SAR ' + m[1] + ' a year compared with monthly';
+    if ((m = c.match(/^سنوي · وفّر (\d+)%$/))) return 'Yearly · save ' + m[1] + '%';
+    if ((m = c.match(/^توفّر (\d+) ر\.س بالسنة مقارنة بالشهري$/))) return 'Save SAR ' + m[1] + ' a year compared with monthly';
+    if ((m = c.match(/^يعادل نحو (\d+) ر\.س شهرياً\. يتجدد تلقائياً كل سنة\.$/))) return 'About SAR ' + m[1] + ' a month. Renews automatically every year.';
+    if ((m = c.match(/^يعادل نحو (\d+) ر\.س شهرياً\.$/))) return 'About SAR ' + m[1] + ' a month.';
     if ((m = c.match(/^الشابتر (\d+) · (.+)$/))) return 'Chapter ' + m[1] + ' · ' + (EN[m[2]] || m[2]);
     if ((m = c.match(/^الشابتر (\d+)$/))) return 'Chapter ' + m[1];
     if ((m = c.match(/^قُرئ السلايد · (\d+) (?:مصطلحات|مصطلحاً)$/))) return 'Slide read · ' + m[1] + ' terms';
