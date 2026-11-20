@@ -117,7 +117,16 @@ Deno.serve(async (req: Request) => {
 
     if (TEST_HASH && typeof b.test === "string" && (await sha256(b.test)) === TEST_HASH) {
       const t0 = Date.now();
-      const res = await solve({ type: "url", url: String(b.url) }, long);
+      let img: Record<string, unknown>;
+      if (b.image) img = { type: "base64", media_type: String(b.media_type || "image/png"), data: String(b.image) };
+      else {
+        const r = await fetch(String(b.url), { headers: { "User-Agent": "TanzeemTest/1.0 (tanzeemm.app@gmail.com)" } });
+        if (!r.ok) return reply({ error: "fetch " + r.status });
+        const buf = new Uint8Array(await r.arrayBuffer());
+        let bin = ""; for (let i = 0; i < buf.length; i += 32768) bin += String.fromCharCode(...buf.subarray(i, i + 32768));
+        img = { type: "base64", media_type: (r.headers.get("content-type") || "image/jpeg").split(";")[0], data: btoa(bin) };
+      }
+      const res = await solve(img, long);
       return reply({ ...(res.data ?? { error: res.err }), usage: res.usage, ms: Date.now() - t0 });
     }
 

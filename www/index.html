@@ -297,6 +297,62 @@ html, body { touch-action: manipulation; -webkit-text-size-adjust: 100%; }
 .notes .n-warn { margin: 0; padding: 8px 12px; border-radius: 10px; background: var(--primary-soft); border: 1px solid var(--primary-line); color: var(--ink); font: 400 13px/20px var(--f-ar); }
 .notes .n-warn button.link { padding: 0; font: 600 13px/20px var(--f-ar); color: var(--primary) !important; text-decoration: underline; }
 .notes .n-warn[hidden] { display: none; }
+/* v76: «صوّر وحل» */
+.sv .sv-card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--e1); padding: 16px 18px; margin-top: 14px; }
+.sv .sv-lbl { font: 600 14px/20px var(--f-ar); color: var(--muted); margin-bottom: 10px; }
+.sv .sv-seg { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.sv .sv-seg button { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 14px 10px; border-radius: 14px; border: 1.5px solid var(--line-2); background: var(--card); color: var(--ink); cursor: pointer; }
+.sv .sv-seg button b { font: 700 18px/26px var(--f-ar); }
+.sv .sv-seg button span { font: 400 13px/18px var(--f-ar); color: var(--faint); }
+.sv .sv-seg button.on { border-color: var(--primary); background: var(--primary-soft); box-shadow: 0 0 0 1px var(--primary) inset; }
+.sv .sv-seg button.on b { color: var(--primary); }
+.sv .sv-drop { margin-top: 14px; border: 2px dashed var(--primary-line); background: var(--zone); border-radius: 20px; padding: 34px 20px; text-align: center; }
+.sv .sv-cam { display: inline-flex; width: 72px; height: 72px; border-radius: 50%; align-items: center; justify-content: center; background: var(--primary-soft); color: var(--primary); }
+.sv .sv-cam svg { width: 36px; height: 36px; }
+.sv .sv-big { margin: 12px 0 2px; font: 700 20px/30px var(--f-ar); color: var(--ink); }
+.sv .sv-sm { margin: 0; font: 400 14px/22px var(--f-ar); color: var(--faint); }
+.sv .sv-btns { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 18px; }
+.sv .sv-go { min-height: 54px; padding-inline: 28px; font-size: 17px; gap: 8px; }
+.sv .sv-go svg { width: 22px; height: 22px; }
+.sv .sv-go2 { min-height: 54px; padding-inline: 22px; font-size: 16px; }
+.sv .sv-meta { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+.sv .sv-pill { font: 400 14px/20px var(--f-ar); color: var(--ink); background: var(--chip); border-radius: 999px; padding: 6px 14px; }
+.sv .sv-pill b { color: var(--primary); }
+.sv .sv-priv { font: 400 13px/20px var(--f-ar); color: var(--faint); }
+.sv .sv-lock { text-align: center; padding: 34px 20px; }
+.sv .sv-lock h2 { margin: 12px 0 6px; font: 700 21px/30px var(--f-ar); }
+.sv .sv-lock p { margin: 0 auto 16px; max-width: 44ch; font: 400 15px/24px var(--f-ar); color: var(--muted); }
+.sv .sv-load { display: flex; align-items: center; justify-content: center; gap: 22px; padding: 30px; }
+.sv .sv-spin { width: 34px; height: 34px; border-radius: 50%; border: 4px solid var(--primary-soft); border-top-color: var(--primary); animation: svspin 0.9s linear infinite; }
+@keyframes svspin { to { transform: rotate(360deg); } }
+.sv .sv-thumb { flex: none; width: 54px; height: 70px; border-radius: 8px; background: #fff; border: 1px solid var(--line-2); box-shadow: var(--e1); object-fit: cover; }
+.sv .sv-thumb.big { width: 92px; height: 120px; }
+.sv .sv-res-h { display: flex; align-items: center; gap: 14px; margin-top: 14px; background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 12px 14px; box-shadow: var(--e1); }
+.sv .sv-res-t { flex: 1; display: flex; flex-direction: column; }
+.sv .sv-res-t b { font: 700 18px/26px var(--f-ar); }
+.sv .sv-res-t span { font: 400 13px/20px var(--f-ar); color: var(--faint); }
+.sv .sv-res-h .btn { gap: 6px; } .sv .sv-res-h .btn svg { width: 18px; height: 18px; }
+.sv .sv-pg { margin: 18px 4px 0; font: 700 15px/22px var(--f-ar); color: var(--muted); }
+.sv .sv-pg + .sv-sheet { margin-top: 8px; }
+.sv .sv-sheet { margin-top: 12px; background: #fff; color: #0F172A; border: 1px solid var(--line-2); border-radius: 14px; box-shadow: var(--e2, var(--e1)); padding: 4px 28px; text-align: left; }
+.sv .sv-part { padding: 16px 0 6px; font: 700 15px/22px var(--f-en, var(--f-ar)); color: #64748B; border-bottom: 3px solid #0F172A; }
+.sv .sv-row { padding: 20px 0; border-bottom: 3px solid #0F172A; }
+.sv .sv-row:last-child { border-bottom: 0; }
+.sv .sv-row:has(+ .sv-part) { border-bottom: 0; }
+.sv .sv-a { font: 700 28px/42px var(--f-en, var(--f-ar)); color: #0F172A; overflow-wrap: anywhere; }
+.sv .sv-a .sv-n { font-weight: 800; }
+.sv .sv-a .sv-d { padding: 0 8px; }
+.sv .sv-a.txt .sv-v { font-weight: 600; font-size: 22px; line-height: 34px; }
+.sv .g { color: #059669; }
+.sv .sv-steps { margin-top: 4px; }
+.sv .m { font-size: 24px; line-height: 44px; color: #0F172A; overflow-x: auto; overflow-y: hidden; padding: 2px 0; }
+.sv .m .katex { font-size: 1em; }
+.sv .m.fin { display: inline-block; max-width: 100%; font-weight: 700; font-size: 26px; margin-top: 6px; padding: 4px 14px; border-radius: 10px; background: #D1FAE5; color: #047857; }
+.sv .sv-note { margin: 4px 0; font: 400 16px/26px var(--f-ar); color: #475569; direction: rtl; text-align: left; unicode-bidi: plaintext; }
+.sv .sv-ex { margin: 6px 0 0; font: 400 16px/26px var(--f-ar); color: #475569; unicode-bidi: plaintext; text-align: left; }
+.sv .sv-perr { padding: 22px 0; font: 600 17px/28px var(--f-ar); color: #B45309; text-align: right; direction: rtl; }
+.sv .sv-warn { margin: 12px 0 0; padding: 10px 14px; border-radius: 12px; background: var(--chip); font: 400 13px/20px var(--f-ar); color: var(--muted); }
+@media (max-width: 600px) { .sv .sv-sheet { padding: 2px 16px; } .sv .sv-row { padding: 14px 0; } .sv .sv-a { font-size: 22px; line-height: 34px; } .sv .sv-a.txt .sv-v { font-size: 18px; line-height: 28px; } .sv .m { font-size: 19px; line-height: 36px; } .sv .m.fin { font-size: 21px; } .sv .sv-res-h { flex-wrap: wrap; } .sv .sv-res-h .btn { width: 100%; justify-content: center; } .sv .sv-drop { padding: 26px 14px; } .sv .sv-seg button b { font-size: 16px; } }
 .notes textarea { flex: 1; width: 100%; min-height: 200px; resize: none; border: 0; outline: none; padding: 0; background: repeating-linear-gradient(transparent, transparent 31px, var(--line) 31px, var(--line) 32px); background-attachment: local; font: 400 16px/32px var(--f-ar); color: var(--ink); }
 @media (max-width: 859px) { .work { flex-direction: column; } .work .slide { flex: none; width: 100%; align-self: center; } .notes { flex: none; } .deck.wn { max-width: max(480px, calc((100vh - var(--ch, 230px)) * 1.7778)); } }
 
@@ -824,6 +880,7 @@ body.on-login{margin:0;background:#0B3B2E}
     cloud: '<svg' + SV + '><path d="M7 18a4 4 0 0 1-.8-7.9 6 6 0 0 1 11.5-1.4A4.6 4.6 0 0 1 17.5 18"/><path d="M12 21v-8M9 16l3-3 3 3"/></svg>',
     book: '<svg' + SV + '><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3V4z"/><path d="M5 17a3 3 0 0 1 3-3h11"/></svg>',
     plus: '<svg' + SV + '><path d="M12 5v14M5 12h14"/></svg>',
+    camera: '<svg' + SV + '><path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13.5" r="3.5"/></svg>',
     arrowL: '<svg' + SV + '><path d="M19 12H5M11 6l-6 6 6 6"/></svg>',
     arrowR: '<svg' + SV + '><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
     chevR: '<svg' + SV + '><path d="M9 6l6 6-6 6"/></svg>',
@@ -1467,7 +1524,7 @@ body.on-login{margin:0;background:#0B3B2E}
     lastStudy = { cid: cur().id, ch: stu.ch };
   }
   var saved = [];
-  var TABS = [['home', 'الرئيسية', 'home'], ['words', 'كلماتي', 'mark'], ['plan', 'الاشتراك', 'star'], ['settings', 'الإعدادات', 'gear']];
+  var TABS = [['home', 'الرئيسية', 'home'], ['words', 'كلماتي', 'mark'], ['solve', 'صوّر وحل', 'camera'], ['plan', 'الاشتراك', 'star'], ['settings', 'الإعدادات', 'gear']];
   function tabOf() { return (view === 'course' || view === 'rec' || view === 'lecture') ? 'home' : view === 'course' ? 'home' : view === 'review' ? 'words' : (view === 'pay' || view === 'manage') ? 'plan' : (view === 'help' || view === 'privacy') ? 'settings' : view; }
   function dispName() { return (settings.name || '').trim(); }
   function topTabs() {
@@ -1531,6 +1588,7 @@ body.on-login{margin:0;background:#0B3B2E}
     else if (view === 'course') renderCourse();
     else if (view === 'words') renderWords();
     else if (view === 'plan') renderPlan();
+    else if (view === 'solve') renderSolve();
     else if (view === 'settings') renderSettings();
     else if (view === 'login') renderLogin();
     else if (view === 'review') renderReview();
@@ -1541,6 +1599,157 @@ body.on-login{margin:0;background:#0B3B2E}
     else if (view === 'help') renderHelp();
     else if (view === 'privacy') renderPrivacy();
     else renderStudy();
+  }
+
+  /* ---------- v76: «صوّر وحل» (photo a paper → answers). Subscribers only, 15 pages a week.
+     Photos stay in this device's memory only: they are sent once to be solved and never uploaded to storage. ---------- */
+  var SOL = { mode: 'short', phase: 'start', left: null, limit: 15, pages: [], done: 0, total: 0, skipped: 0, asked: false };
+  function svReset() { SOL.phase = 'start'; SOL.pages = []; SOL.done = 0; SOL.total = 0; SOL.skipped = 0; }
+  function svStatus() {
+    if (!sb || SOL.asked) return;
+    SOL.asked = true;
+    sb.functions.invoke('solve', { body: { status: true } }).then(function (r) {
+      var d = r && r.data;
+      if (d && typeof d.left === 'number') { SOL.left = d.left; SOL.limit = d.limit || 15; if (view === 'solve') renderSolve(); }
+      else SOL.asked = false;
+    }, function () { SOL.asked = false; });
+  }
+  var KX = null;
+  function svKatex(cb) {
+    if (window.katex) return cb();
+    if (KX) { KX.push(cb); return; }
+    KX = [cb];
+    var l = document.createElement('link'); l.rel = 'stylesheet'; l.href = 'lib/katex/katex.min.css'; document.head.appendChild(l);
+    var sc = document.createElement('script'); sc.src = 'lib/katex/katex.min.js';
+    sc.onload = function () { var q = KX; KX = []; q.forEach(function (f) { f(); }); };
+    sc.onerror = function () { KX = null; };
+    document.head.appendChild(sc);
+  }
+  function svMath() {
+    var els = document.querySelectorAll('.sv .tex[data-tex]');
+    if (!els.length) return;
+    svKatex(function () {
+      Array.prototype.forEach.call(document.querySelectorAll('.sv .tex[data-tex]'), function (el) {
+        try { window.katex.render(el.getAttribute('data-tex'), el, { throwOnError: false, displayMode: false, output: 'html', strict: 'ignore', trust: false, maxSize: 20, maxExpand: 200 }); el.removeAttribute('data-tex'); } catch (e) { /* keep the plain text */ }
+      });
+    });
+  }
+  function svTex(t, cls) { return '<div class="m' + (cls ? ' ' + cls : '') + '" dir="ltr"><span class="tex" data-tex="' + esc(t) + '">' + esc(t) + '</span></div>'; }
+  function svLabel(a) { a = String(a || '').trim().replace(/^[\(\[]\s*|\s*[\)\].:]$/g, ''); return '(' + a + ')'; }
+  function svItem(it, long) {
+    var n = '<span class="sv-n">' + esc(it.n || '') + '</span><span class="sv-d">-</span>', h = '';
+    if (it.type === 'mcq') h = '<div class="sv-a" dir="ltr">' + n + '<span class="g">' + esc(svLabel(it.answer)) + '</span></div>';
+    else if (it.type === 'tf') h = '<div class="sv-a" dir="ltr">' + n + '<span class="g">' + (it.answer ? 'صح (True)' : 'خطأ (False)') + '</span></div>';
+    else if (it.type === 'work') {
+      h = '<div class="sv-a" dir="ltr">' + n + '</div><div class="sv-steps">' + (it.steps || []).map(function (s) {
+        return s.note ? (long ? '<p class="sv-note" dir="rtl">' + esc(s.note) + '</p>' : '') : svTex(s.math);
+      }).join('') + (it.answer ? svTex(it.answer, 'fin') : '') + '</div>';
+    } else h = '<div class="sv-a txt" dir="ltr">' + n + '<span class="sv-v" dir="auto">' + esc(it.answer || '') + '</span></div>';
+    if (long && it.explain) h += '<p class="sv-ex" dir="rtl">' + esc(it.explain) + '</p>';
+    return '<div class="sv-row">' + h + '</div>';
+  }
+  function svCount(n) { return n === 1 ? 'سؤال واحد' : n === 2 ? 'سؤالين' : n <= 10 ? n + ' أسئلة' : n + ' سؤال'; }
+  function svPagesW(n) { return n === 1 ? 'صفحة' : n === 2 ? 'صفحتين' : n <= 10 ? n + ' صفحات' : n + ' صفحة'; }
+  function svErrText(p) {
+    return p.err === 'unclear' ? 'الصورة مو واضحة. صوّرها مرة ثانية والورقة كاملة والإضاءة زينة.' :
+      p.err === 'no_questions' ? 'ما لقينا أسئلة في هذي الصورة.' :
+      p.err === 'limit' ? 'ما حلينا هذي الصفحة لأن أوراق هذا الأسبوع خلصت.' :
+      'ما قدرنا نحل هذي الصفحة. جرّب مرة ثانية، وما راح تنحسب عليك.';
+  }
+  function renderSolve() {
+    if (subscribed) svStatus();
+    var lim = SOL.limit || 15, left = SOL.left;
+    var head = '<section><h1 class="sec-h pg-h">صوّر وحل</h1><p class="sec-p">صوّر أي ورقة، ونعطيك الإجابات مرتبة.</p></section>';
+    var html = head;
+    if (!subscribed) {
+      html += '<div class="sv-card sv-lock"><span class="sv-cam">' + I.camera + '</span><h2>صوّر أي ورقة وخذ إجاباتها مرتبة</h2><p>هذي من مزايا المشتركين. تقدر تحل لين ' + lim + ' ورقة كل أسبوع، بشرح أو بدون شرح.</p><button class="btn primary sv-go" type="button" data-act="plan">جرّب الاشتراك</button></div>';
+    } else if (SOL.phase === 'loading') {
+      var th = SOL.pages[Math.min(SOL.done, SOL.pages.length - 1)];
+      html += '<div class="sv-card sv-load">' + (th && th.thumb ? '<img class="sv-thumb big" alt="" src="' + th.thumb + '">' : '') + '<div><div class="sv-spin"></div><p class="sv-big">نقرأ الورقة ونحلها...</p><p class="sv-sm">' + (SOL.total > 1 ? 'الصفحة ' + Math.min(SOL.done + 1, SOL.total) + ' من ' + SOL.total : 'عادةً تاخذ ثواني') + '</p></div></div>';
+    } else if (SOL.phase === 'answers') {
+      var long = SOL.ansMode === 'long', nq = 0, multi = SOL.pages.length > 1;
+      SOL.pages.forEach(function (p) { if (p.res) p.res.parts.forEach(function (pt) { nq += pt.items.length; }); });
+      var first = SOL.pages[0] && SOL.pages[0].thumb;
+      html += '<div class="sv-res-h">' + (first ? '<img class="sv-thumb" alt="" src="' + first + '">' : '') + '<div class="sv-res-t"><b>' + 'الإجابات · ' + (multi ? svPagesW(SOL.pages.length) + ' · ' : '') + svCount(nq) + '</b><span>' + (long ? 'مع شرح' : 'بدون شرح') + '</span></div><button class="btn primary" type="button" data-act="svAgain">' + I.camera + '<span>ورقة ثانية</span></button></div>';
+      SOL.pages.forEach(function (p, k) {
+        if (multi) html += '<div class="sv-pg">الصفحة ' + (k + 1) + '</div>';
+        html += '<div class="sv-sheet" dir="ltr">' + (p.res ? p.res.parts.map(function (pt) {
+          return (pt.title ? '<div class="sv-part">' + esc(pt.title) + '</div>' : '') + pt.items.map(function (it) { return svItem(it, long); }).join('');
+        }).join('') : '<div class="sv-perr">' + svErrText(p) + '</div>') + '</div>';
+      });
+      html += '<p class="sv-warn">ℹ️ الإجابات من الذكاء الاصطناعي، وممكن يكون فيها أخطاء. راجعها قبل ما تعتمد عليها.</p>';
+    } else if (left === 0) {
+      html += '<div class="sv-card sv-lock"><span class="sv-cam">' + I.camera + '</span><h2>خلصت أوراق هذا الأسبوع</h2><p>حليت ' + lim + ' ورقة. يتجدد العدد يوم الأحد.</p></div>';
+    } else {
+      var m = SOL.mode;
+      html += '<div class="sv-card"><div class="sv-lbl">تبي الإجابات</div><div class="sv-seg" role="radiogroup">' +
+        '<button type="button" role="radio" aria-checked="' + (m === 'short') + '" class="' + (m === 'short' ? 'on' : '') + '" data-act="svMode" data-m="short"><b>بدون شرح</b><span>الإجابات بس</span></button>' +
+        '<button type="button" role="radio" aria-checked="' + (m === 'long') + '" class="' + (m === 'long' ? 'on' : '') + '" data-act="svMode" data-m="long"><b>مع شرح</b><span>الإجابة وسببها</span></button></div></div>' +
+        '<div class="sv-drop"><span class="sv-cam">' + I.camera + '</span><p class="sv-big">صوّر الورقة كاملة وواضحة</p><p class="sv-sm">خل الورقة مسطحة والإضاءة زينة. تقدر تختار أكثر من صفحة مرة وحدة.</p>' +
+        '<div class="sv-btns"><button class="btn primary sv-go" type="button" data-act="svCam">' + I.camera + '<span>صوّر الورقة</span></button><button class="btn sv-go2" type="button" data-act="svAlbum">اختر صورة من الألبوم</button></div></div>' +
+        '<div class="sv-meta">' + (typeof left === 'number' ? '<span class="sv-pill">باقي لك <b>' + left + '</b> من ' + lim + ' ورقة هذا الأسبوع</span>' : '<span></span>') + '<span class="sv-priv">🔒 ما نحفظ صورك. تنحذف بعد الحل مباشرة.</span></div>';
+      if (SOL.msg) { html += '<p class="sv-warn">' + esc(SOL.msg) + '</p>'; }
+    }
+    $('#view').innerHTML = '<div class="page sv">' + html + '</div>';
+    if (SOL.phase === 'answers') svMath();
+  }
+  function svPick(cam) {
+    var inp = document.createElement('input');
+    inp.type = 'file'; inp.accept = 'image/*'; inp.style.cssText = 'position:fixed;left:-9999px;top:0;opacity:0';
+    if (cam) inp.setAttribute('capture', 'environment'); else inp.multiple = true;
+    inp.addEventListener('change', function () { var fs = Array.prototype.slice.call(inp.files || []); inp.remove(); if (fs.length) svRun(fs); });
+    document.body.appendChild(inp);
+    inp.click();
+  }
+  // shrink the photo on the device before sending: max 1800 px, JPEG. Nothing is written to disk or storage.
+  function svShrink(file) {
+    return new Promise(function (ok, no) {
+      var url = URL.createObjectURL(file), img = new Image();
+      img.onload = function () {
+        var k = Math.min(1, 1800 / Math.max(img.naturalWidth, img.naturalHeight)), w = Math.max(1, Math.round(img.naturalWidth * k)), h = Math.max(1, Math.round(img.naturalHeight * k));
+        var c = document.createElement('canvas'); c.width = w; c.height = h; var x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, w, h); x.drawImage(img, 0, 0, w, h);
+        var t = document.createElement('canvas'), tk = 140 / Math.max(w, h); t.width = Math.round(w * tk); t.height = Math.round(h * tk); t.getContext('2d').drawImage(c, 0, 0, t.width, t.height);
+        URL.revokeObjectURL(url);
+        ok({ data: c.toDataURL('image/jpeg', 0.85).split(',')[1], thumb: t.toDataURL('image/jpeg', 0.7) });
+      };
+      img.onerror = function () { URL.revokeObjectURL(url); no(new Error('img')); };
+      img.src = url;
+    });
+  }
+  function svBody(r) {
+    var c = r && r.error && r.error.context;
+    if (c && typeof c.json === 'function') return c.json().then(function (b) { return { st: c.status, b: b || {} }; }, function () { return { st: c.status, b: {} }; });
+    return Promise.resolve({ st: c && c.status, b: (r && r.data) || {} });
+  }
+  function svRun(files) {
+    if (!sb || SOL.phase === 'loading') return;
+    var room = typeof SOL.left === 'number' ? SOL.left : SOL.limit;
+    SOL.msg = '';
+    SOL.ansMode = SOL.mode; SOL.phase = 'loading'; SOL.pages = files.map(function () { return { thumb: '', res: null, err: '' }; });
+    SOL.total = files.length; SOL.done = 0;
+    if (view === 'solve') renderSolve();
+    var i = 0;
+    function next() {
+      if (i >= files.length) { SOL.phase = 'answers'; if (SOL.pages.every(function (p) { return p.err === 'limit'; })) { SOL.phase = 'start'; SOL.left = 0; } if (view === 'solve') renderSolve(); return; }
+      var k = i++, pg = SOL.pages[k];
+      if (room <= 0) { pg.err = 'limit'; SOL.done++; return next(); }
+      svShrink(files[k]).then(function (im) {
+        pg.thumb = im.thumb; if (view === 'solve') renderSolve();
+        return sb.functions.invoke('solve', { body: { image: im.data, media_type: 'image/jpeg', mode: SOL.ansMode } }).then(function (r) {
+          im.data = null;
+          return svBody(r).then(function (x) {
+            var d = x.b || {};
+            if (typeof d.left === 'number') { SOL.left = d.left; room = d.left; }
+            if (d.ok === true && d.parts) pg.res = d;
+            else if (d.ok === false) pg.err = d.reason || 'no_questions';
+            else if (d.error === 'limit') { pg.err = 'limit'; room = 0; SOL.left = 0; }
+            else if (d.error === 'not_subscribed' || x.st === 403) { subscribed = false; pg.err = 'server'; }
+            else pg.err = 'server';
+          });
+        });
+      }).catch(function () { pg.err = pg.err || 'server'; }).then(function () { SOL.done++; next(); });
+    }
+    next();
   }
 
   /* ---------- top bar ---------- */
@@ -2110,7 +2319,7 @@ body.on-login{margin:0;background:#0B3B2E}
       '<button class="srow" type="button" data-act="help"><span>المساعدة والأسئلة الشائعة</span>' + I.chevL + '</button>' +
       '<button class="srow" type="button" data-act="privacy"><span>الخصوصية والشروط</span>' + I.chevL + '</button>' +
       '<a class="srow" href="mailto:tanzeemm.app@gmail.com"><span class="st-t"><span>راسلنا على الإيميل</span><small dir="ltr">tanzeemm.app@gmail.com</small></span>' + I.chevL + '</a>' +
-      '<div class="srow"><span>الإصدار</span><span class="sval" dir="ltr">1.0</span></div></div></div>' +
+      '<div class="srow"><span>الإصدار</span><span class="sval" dir="ltr">1.1</span></div></div></div>' +
       '<div class="sgroup"><h2 class="sg-t">الأمان</h2><div class="slist">' +
       (pwOpen ? '<form class="srow" id="pwForm" style="flex-wrap:wrap" novalidate><input id="oPw" type="password" autocomplete="current-password" placeholder="كلمة المرور الحالية" aria-label="كلمة المرور الحالية" style="flex:1;min-width:200px;height:44px;padding:0 12px;border:1px solid var(--line-2);border-radius:10px;font:500 14px/20px var(--f-ar)"><input id="nPw" type="password" autocomplete="new-password" placeholder="كلمة المرور الجديدة (8 خانات، إنجليزي + رقم)" aria-label="كلمة المرور الجديدة" style="flex:1;min-width:200px;height:44px;padding:0 12px;border:1px solid var(--line-2);border-radius:10px;font:500 14px/20px var(--f-ar)"><button class="btn" type="submit">حفظ</button><p class="err" id="pwErr" role="alert" hidden style="width:100%;margin:0"></p></form>' : '<button class="srow" type="button" data-act="chPw"><span>تغيير كلمة المرور</span>' + I.chevL + '</button>') + '</div></div>' +
       '<button class="btn" type="button" data-act="logout">تسجيل الخروج</button>' +
@@ -2793,6 +3002,10 @@ body.on-login{margin:0;background:#0B3B2E}
     else if (act === 'know') { rv.known++; rv.i++; rv.flip = false; renderReview(); }
     else if (act === 'miss') { rv.miss.push(rv.q[rv.i]); rv.i++; rv.flip = false; renderReview(); }
     else if (act === 'plan') show('plan');
+    else if (act === 'svMode') { SOL.mode = a.dataset.m === 'long' ? 'long' : 'short'; renderSolve(); }
+    else if (act === 'svCam') svPick(true);
+    else if (act === 'svAlbum') svPick(false);
+    else if (act === 'svAgain') { svReset(); renderSolve(); window.scrollTo(0, 0); }
     else if (act === 'retryTr') { if (S && S.trArgs) { S.aiErr = null; paintSide(); aiTranslate(S.trArgs[0], S.trArgs[1], S.trArgs[2], 0); } }
     else if (act === 'saveWord') toggleSave();
     else if (act === 'closeTr') closeTr();
@@ -3190,6 +3403,11 @@ body.on-login{margin:0;background:#0B3B2E}
     'ما فيه نص في هذا النطاق. جرّب «الشابتر كامل»، أو اكتب ملاحظات واحفظ كلمات.': 'There is no text in this range. Try “Whole chapter”, or write notes and save words.',
     'الأمان': 'Security', 'تغيير كلمة المرور': 'Change password', 'كلمة المرور الحالية': 'Current password', 'كلمة المرور الجديدة': 'New password', 'كلمة المرور الجديدة (8 خانات، إنجليزي + رقم)': 'New password (8 characters, English letters + a number)',
     'نسيت كلمة السر؟': 'Forgot password?',
+    'صوّر وحل': 'Snap & solve', 'صوّر أي ورقة، ونعطيك الإجابات مرتبة.': 'Snap any paper and get its answers, neatly organized.', 'تبي الإجابات': 'Answers', 'بدون شرح': 'Without explanation', 'مع شرح': 'With explanation', 'الإجابات بس': 'Answers only', 'الإجابة وسببها': 'The answer and why',
+    'صوّر الورقة كاملة وواضحة': 'Photograph the whole page, clearly', 'خل الورقة مسطحة والإضاءة زينة. تقدر تختار أكثر من صفحة مرة وحدة.': 'Keep the paper flat and well lit. You can pick several pages at once.', 'صوّر الورقة': 'Take a photo', 'اختر صورة من الألبوم': 'Choose from Photos',
+    '🔒 ما نحفظ صورك. تنحذف بعد الحل مباشرة.': '🔒 We don’t keep your photos. They are deleted right after solving.', 'صوّر أي ورقة وخذ إجاباتها مرتبة': 'Snap any paper and get its answers, neatly organized', 'خلصت أوراق هذا الأسبوع': 'You’ve used this week’s pages',
+    'نقرأ الورقة ونحلها...': 'Reading and solving the page...', 'عادةً تاخذ ثواني': 'Usually takes a few seconds', 'ورقة ثانية': 'Another page', 'ℹ️ الإجابات من الذكاء الاصطناعي، وممكن يكون فيها أخطاء. راجعها قبل ما تعتمد عليها.': 'ℹ️ Answers come from AI and may contain mistakes. Check them before relying on them.',
+    'الصورة مو واضحة. صوّرها مرة ثانية والورقة كاملة والإضاءة زينة.': 'The photo isn’t clear. Take it again with the whole page in view and good light.', 'ما لقينا أسئلة في هذي الصورة.': 'We couldn’t find any questions in this photo.', 'ما حلينا هذي الصفحة لأن أوراق هذا الأسبوع خلصت.': 'This page wasn’t solved because this week’s pages are used up.', 'ما قدرنا نحل هذي الصفحة. جرّب مرة ثانية، وما راح تنحسب عليك.': 'We couldn’t solve this page. Try again; it won’t count against you.', 'صح (True)': 'True', 'خطأ (False)': 'False',
     'رقم الشابتر': 'Chapter number', 'اكتب رقم الشابتر (من 1 إلى 999).': 'Enter the chapter number (1 to 999).',
     'الكتابة والتظليل والملاحظات على السلايد': 'Writing, highlighting and notes on slides',
     'جرّب الاشتراك وبيجيك شرح الكلمة المبسط.': 'Subscribe and you will get a simple explanation of the word.', 'شوف الاشتراك': 'See subscription', 'جرّب الاشتراك': 'Try subscribing', 'ملاحظة: ترى ملاحظاتك ما تنحفظ هنا': 'Note: your notes are not saved here', 'تقدر تكتب هنا، بس ما تنحفظ بدون اشتراك.': 'You can write here, but notes are not saved without a subscription.', 'ما تنحفظ': 'Not saved',
@@ -3213,6 +3431,13 @@ body.on-login{margin:0;background:#0B3B2E}
   }
   function ruleEN(c) {
     var m, r;
+    if ((m = c.match(/^هذي من مزايا المشتركين\. تقدر تحل لين (\d+) ورقة كل أسبوع، بشرح أو بدون شرح\.$/))) return 'This is a subscriber feature. You can solve up to ' + m[1] + ' pages a week, with or without explanations.';
+    if ((m = c.match(/^حليت (\d+) ورقة\. يتجدد العدد يوم الأحد\.$/))) return 'You solved ' + m[1] + ' pages. The count resets on Sunday.';
+    if ((m = c.match(/^من (\d+) ورقة هذا الأسبوع$/))) return 'of ' + m[1] + ' pages left this week';
+    if (c === 'باقي لك') return '';
+    if ((m = c.match(/^الصفحة (\d+) من (\d+)$/))) return 'Page ' + m[1] + ' of ' + m[2];
+    if ((m = c.match(/^الصفحة (\d+)$/))) return 'Page ' + m[1];
+    if ((m = c.match(/^الإجابات · (.+)$/))) return 'Answers · ' + m[1].replace(/سؤال واحد/, '1 question').replace(/سؤالين/, '2 questions').replace(/(\d+) (?:أسئلة|سؤال)/, '$1 questions').replace(/^صفحتين/, '2 pages').replace(/^(\d+) (?:صفحات|صفحة)/, '$1 pages').replace(/^صفحة · /, '1 page · ');
     if ((m = c.match(/^(.+) مفتوحة للمشتركين\. وكل شيء كتبته قبل محفوظ عندك وتقدر تشوفه\.$/))) return (EN[m[1]] || m[1]) + ' is open to subscribers. Everything you wrote before is saved and you can still view it.';
     if ((m = c.match(/^باقي (\d+) أيام$/))) return m[1] + ' days left';
     if ((m = c.match(/^اشتراكك فعّال · (الخطة الشهرية|الخطة السنوية) · ينتهي في (.+)\.$/))) return 'Your subscription is active · ' + (m[1] === 'الخطة السنوية' ? 'Yearly plan' : 'Monthly plan') + ' · ends on ' + m[2] + '.';

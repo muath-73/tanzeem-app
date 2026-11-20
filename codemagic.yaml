@@ -28,12 +28,19 @@ workflows:
           npx @capacitor/assets generate --ios --iconBackgroundColor '#0B3B2E' --splashBackgroundColor '#0B3B2E' --splashBackgroundColorDark '#0B3B2E'
       - name: Copy web files into the app
         script: npx cap sync ios
-      - name: iPad only, iOS 15+, Arabic name, no export-compliance prompt
+      - name: iPhone + iPad, iOS 15+, version 1.1, Arabic name, camera/photos permission text, no export-compliance prompt
         script: |
           PLIST=ios/App/App/Info.plist
           /usr/libexec/PlistBuddy -c "Set :CFBundleDisplayName تنظيم" "$PLIST" 2>/dev/null || /usr/libexec/PlistBuddy -c "Add :CFBundleDisplayName string تنظيم" "$PLIST"
           /usr/libexec/PlistBuddy -c "Add :ITSAppUsesNonExemptEncryption bool false" "$PLIST" 2>/dev/null || true
-          sed -i '' 's/TARGETED_DEVICE_FAMILY = "1,2"/TARGETED_DEVICE_FAMILY = 2/g' ios/App/App.xcodeproj/project.pbxproj
+          # «صوّر وحل» opens the camera and the photo library; without these texts iOS closes the app
+          /usr/libexec/PlistBuddy -c "Set :NSCameraUsageDescription تنظيم يستخدم الكاميرا لما تصوّر ورقة عشان نعطيك إجاباتها. ما نحفظ الصور." "$PLIST" 2>/dev/null || /usr/libexec/PlistBuddy -c "Add :NSCameraUsageDescription string تنظيم يستخدم الكاميرا لما تصوّر ورقة عشان نعطيك إجاباتها. ما نحفظ الصور." "$PLIST"
+          /usr/libexec/PlistBuddy -c "Set :NSPhotoLibraryUsageDescription تنظيم يفتح الألبوم لما تختار صورة ورقة عشان نعطيك إجاباتها. ما نحفظ الصور." "$PLIST" 2>/dev/null || /usr/libexec/PlistBuddy -c "Add :NSPhotoLibraryUsageDescription string تنظيم يفتح الألبوم لما تختار صورة ورقة عشان نعطيك إجاباتها. ما نحفظ الصور." "$PLIST"
+          # v76 / update 1.1: iPhone and iPad (was iPad only). Once shipped, iPhone support can't be removed.
+          sed -i '' 's/TARGETED_DEVICE_FAMILY = 2;/TARGETED_DEVICE_FAMILY = "1,2";/g' ios/App/App.xcodeproj/project.pbxproj
+          sed -i '' 's/MARKETING_VERSION = [0-9.]*;/MARKETING_VERSION = 1.1;/g' ios/App/App.xcodeproj/project.pbxproj
+          grep -q 'TARGETED_DEVICE_FAMILY = "1,2"' ios/App/App.xcodeproj/project.pbxproj
+          grep -q 'MARKETING_VERSION = 1.1;' ios/App/App.xcodeproj/project.pbxproj
           sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = 1[0-4]\.0;/IPHONEOS_DEPLOYMENT_TARGET = 15.0;/g' ios/App/App.xcodeproj/project.pbxproj
           sed -i '' "s/platform :ios, '1[0-4]\.0'/platform :ios, '15.0'/" ios/App/Podfile
           cd ios/App && pod install && cd ../..

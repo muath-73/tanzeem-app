@@ -52,6 +52,12 @@
       else if(n==='pay'){ window.__payBodies=(window.__payBodies||[]).concat([b]); var cp=(b.coupon||'').toUpperCase(); var base=b.cycle==='month'?18:159, amt=base, kind='', cerr=false; if(cp){ if(false){amt=19;kind='coupon'} else cerr=true } if(CFG.referred&&b.cycle==='month'&&kind!=='coupon'){amt=22;kind='ref'}
         if(b.action==='quote') res.data={cycle:b.cycle,amount:amt,base:base,kind:kind,coupon:kind==='coupon'?cp:'',couponErr:cerr};
         else if(b.action==='create') res.data={id:'inv_test12345',url:'https://checkout.moyasar.com/invoices/inv_test12345',amount:amt}; else res.data={activated:!!CFG.payOk,sub:db().sub}; if(b.action==='check'&&CFG.payOk){ var d2=db(); d2.sub={plan:'year',status:'active',source:'moyasar',period_end:new Date(Date.now()+365*864e5).toISOString()}; sv(d2);} }
+      else if(n==='solve'){ window.__svBodies=(window.__svBodies||[]).concat([{status:!!b.status,mode:b.mode,len:(b.image||'').length,mt:b.media_type}]); var d4=db(); if(d4.svLeft==null) d4.svLeft=(CFG.svLeft!=null?CFG.svLeft:15);
+        if(b.status) res.data={subscribed:true,left:d4.svLeft,limit:15};
+        else if(CFG.svFail){ res={data:null,error:{context:{status:502,json:function(){return Promise.resolve({error:'parse',left:d4.svLeft});}}}}; }
+        else if(d4.svLeft<=0){ res={data:null,error:{context:{status:429,json:function(){return Promise.resolve({error:'limit',left:0});}}}}; }
+        else { d4.svLeft--; var F=(window.__SVFIX||{})[b.mode==='long'?'long':'short']||[]; var k=(window.__svI=(window.__svI||0)+1)-1; var fx=CFG.svUnclear&&k===1?{ok:false,reason:'unclear'}:F[k%F.length]; if(fx&&fx.ok===false) d4.svLeft++; res.data=Object.assign({},fx,{left:d4.svLeft}); }
+        sv(d4); }
       else if(n==='delete-account'){ res.data={ok:true}; }
       else if(n==='iap'){ var m=CFG.iapMode||''; window.__iapBodies=(window.__iapBodies||[]).concat([JSON.stringify(b)]); if(m==='owner'&&b&&b.claim===true) m='active'; if(m==='active'){ var d3=db(); d3.sub={plan:'month',status:'active',source:'apple',period_end:new Date(Date.now()+30*864e5).toISOString()}; sv(d3); res.data={active:true,why:''}; } else res.data={active:false,why:m||'expired'}; }
       return new Promise(function(r){ setTimeout(function(){r(res)}, CFG.lag||60); }); } },
