@@ -1,0 +1,10 @@
+const {chromium,devices}=require('playwright');const http=require('http'),fs=require('fs'),path=require('path');
+const ROOT=path.resolve(__dirname,'../'+(process.env.V||'v50'));const MIME={'.html':'text/html; charset=utf-8','.js':'text/javascript','.mjs':'text/javascript','.css':'text/css','.png':'image/png','.jpg':'image/jpeg','.json':'application/json','.webmanifest':'application/json','.xml':'text/xml'};
+function serve(port){return new Promise(r=>{const s=http.createServer((q,res)=>{let u=decodeURIComponent(q.url.split('?')[0]);if(u==='/')u='/index.html';const f=path.join(ROOT,u);if(!f.startsWith(ROOT)||!fs.existsSync(f)||fs.statSync(f).isDirectory()){res.writeHead(404);return res.end('nf');}res.writeHead(200,{'Content-Type':MIME[path.extname(f)]||'application/octet-stream'});fs.createReadStream(f).pipe(res);});s.listen(port,()=>r(s));});}
+const STUB=fs.readFileSync(path.join(__dirname,'stub.js'),'utf8');const PDF=fs.readFileSync(path.join(__dirname,'test.pdf')).toString('base64');
+async function open(browser,cfg,opt){opt=opt||{};const ctx=await browser.newContext(Object.assign({viewport:{width:1366,height:1024},locale:'ar-SA',reducedMotion:opt.motion?'no-preference':'reduce'},opt.ctx||{}));
+ await ctx.route('**/*',route=>{const u=route.request().url();if(u.includes('supabase.min.js'))return route.fulfill({contentType:'text/javascript',body:STUB});if(u.startsWith('http://localhost'))return route.continue();if(u.includes('fonts.g'))return route.fulfill({contentType:'text/css',body:''});return route.abort();});
+ await ctx.addInitScript(([c,p,ls])=>{window.__CFG=c;window.__PDF=p;if(ls&&!localStorage.getItem('__seeded')){for(const k in ls)localStorage.setItem(k,ls[k]);localStorage.setItem('__seeded','1');}},[cfg||{},PDF,opt.ls||null]);
+ const page=await ctx.newPage();const errs=[];page.on('pageerror',e=>errs.push('PAGEERR '+e.message));page.on('console',m=>{if(m.type()==='error'&&!/net::ERR|Failed to load resource/.test(m.text()))errs.push('CONSOLE '+m.text().slice(0,200));});
+ page.errs=errs;return page;}
+module.exports={chromium,devices,serve,open,PDF};
