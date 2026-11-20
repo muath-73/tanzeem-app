@@ -614,6 +614,8 @@ body.focusmode .stage { padding-top: 10px; }
 .feats { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; flex: 1; align-content: start; }
 .feats li { display: flex; gap: 10px; align-items: flex-start; font: 400 14px/22px var(--f-ar); }
 .feats svg { width: 18px; height: 18px; margin-top: 2px; color: var(--ok); }
+.feats li.star svg { color: #C8A24A; fill: #C8A24A; }
+.feats li.star span { font-weight: 600; }
 
 /* settings */
 .sgroup { display: flex; flex-direction: column; gap: 8px; }
@@ -2139,7 +2141,8 @@ body.on-login{margin:0;background:#0B3B2E}
   }
 
   /* ---------- subscription ---------- */
-  function planFeats(arr) { return '<ul class="feats">' + arr.map(function (t) { return '<li>' + I.check + '<span>' + t + '</span></li>'; }).join('') + '</ul>'; }
+  // star: on the subscription cards, «صوّر وحل» gets a star instead of a check
+  function planFeats(arr, star) { return '<ul class="feats">' + arr.map(function (t) { var st = star && t.indexOf('صوّر وحل') === 0; return '<li' + (st ? ' class="star"' : '') + '>' + (st ? I.star : I.check) + '<span>' + t + '</span></li>'; }).join('') + '</ul>'; }
   function cycWord() { return cycle === 'year' ? 'سنوياً' : 'شهرياً'; }
   function renderPlan() {
     if (IS_NATIVE && !iapPrice.month && !iapPrice.year) iapLoad();
@@ -2150,7 +2153,7 @@ body.on-login{margin:0;background:#0B3B2E}
       return '<article class="plan pro' + (cur ? ' on' : '') + '"><div class="pl-h"><h3>' + (yearly ? 'مشترك · سنوي' : 'مشترك · شهري') + '</h3>' + (cur ? curBadge : yearly ? '<span class="badge ok">⭐ ننصحك فيه</span>' : '') + '</div>' +
         (IS_NATIVE ? '<div><div class="price"><b dir="ltr">' + esc(iapTxt(cy)) + '</b><span>' + (yearly ? 'سنوياً' : 'شهرياً') + '</span></div><p class="price-n">' + (yearly ? 'يعادل نحو ' + perMonth() + ' ر.س شهرياً. يتجدد تلقائياً كل سنة.' : 'يتجدد تلقائياً كل شهر.') + '</p>' + (yearly ? '<p class="price-n" style="color:var(--ok,#059669);font-weight:600;margin-top:4px">توفّر نحو ' + iapSave().amt + ' ر.س بالسنة مقارنة بالشهري</p>' : '') + '</div>'
         : '<div><div class="price"><b>' + PRICE[cy] + '</b><span>ر.س ' + (yearly ? 'سنوياً' : 'شهرياً') + '</span></div><p class="price-n">' + (yearly ? 'يعادل نحو ' + perMonth() + ' ر.س شهرياً.' : 'بدون تجديد تلقائي.') + '</p>' + (yearly ? '<p class="price-n" style="color:var(--ok,#059669);font-weight:600;margin-top:4px">توفّر ' + (PRICE.month * 12 - PRICE.year) + ' ر.س بالسنة مقارنة بالشهري</p>' : '') + '</div>') +
-        '<div style="flex:1">' + planFeats(['رفع سلايدات كل المواد والشباتر', 'ترجمة أي كلمة بالضغط عليها', 'حفظ الكلمات ومراجعتها', 'صوّر وحل: صوّر أي ورقة وخذ إجاباتها مرتبة', 'الشرح المبسط تحت ترجمة كل كلمة', 'الكتابة والتظليل على السلايد', 'الملاحظات بجانب السلايد', 'كود أسئلة جاهز من سلايداتك وملاحظاتك']) + '</div>' +
+        '<div style="flex:1">' + planFeats(['رفع سلايدات كل المواد والشباتر', 'ترجمة أي كلمة بالضغط عليها', 'حفظ الكلمات ومراجعتها', 'صوّر وحل: صوّر أي ورقة وخذ إجاباتها مرتبة', 'الشرح المبسط تحت ترجمة كل كلمة', 'الكتابة والتظليل على السلايد', 'الملاحظات بجانب السلايد', 'كود أسئلة جاهز من سلايداتك وملاحظاتك'], true) + '</div>' +
         '<button class="btn ' + (yearly ? 'ai' : 'primary') + '" type="button" data-act="subscribe" data-plc="' + cy + '">' + (cur ? 'جدّد اشتراكك' : subscribed && !trial ? 'غيّر إلى هذه الخطة' : 'اشترك الآن') + '</button>' + '</article>';
     }
     $('#view').innerHTML = '<div class="page"><section><h1 class="sec-h pg-h">الاشتراك</h1>' + sub + '</section>' +
