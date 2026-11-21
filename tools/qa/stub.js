@@ -21,7 +21,7 @@
       if(CFG.offline) return Promise.reject(new Error('net'));
       if(q.t==='app_state'){ if(q.op==='select') res.data=d.app_state?{data:d.app_state}:null; else if(q.op==='upsert'){ d.app_state=q.row.data; sv(d);} }
       else if(q.t==='subscriptions'){ res.data=d.sub; }
-      else if(q.t==='active_device'){ if(q.op==='select') res.data=d.dev?{device_id:d.dev}:null; else { d.dev=q.row.device_id; sv(d);} }
+      else if(q.t==='active_device'){ d.devs=d.devs||{}; window.__devOps=(window.__devOps||[]).concat([q.op+':'+(q.f.kind||(q.row&&q.row.kind)||'-')]); if(q.op==='select'){ var dk=q.f.kind||'other'; res.data=d.devs[dk]?{device_id:d.devs[dk]}:null; } else { d.devs[q.row.kind||'other']=q.row.device_id; sv(d);} }
       else if(q.t==='ink'){ if(q.op==='select') res.data=d.ink.filter(function(x){return x.deck===q.f.deck}); else if(q.op==='upsert'){ if(CFG.inkDeny){res.error={message:'denied'};} else { d.ink=d.ink.filter(function(x){return !(x.deck===q.row.deck&&x.slide===q.row.slide)}); d.ink.push(q.row); sv(d);} } else { d.ink=d.ink.filter(function(x){return !(x.deck===q.f.deck&&(q.f.slide==null||x.slide===q.f.slide))}); sv(d);} }
       return new Promise(function(r){ setTimeout(function(){r(res)}, CFG.lag||30); });
     }

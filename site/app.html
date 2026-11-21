@@ -1320,10 +1320,11 @@ body.on-login{margin:0;background:#0B3B2E}
     }
   }
 
-  /* ---------- one device per account ---------- */
+  /* ---------- v76: two devices per account: one phone + one other (iPad or laptop). A new phone replaces the old phone; a new iPad/laptop replaces the old one. ---------- */
+  var DEVKIND = (function () { var u = navigator.userAgent || ''; return /iPhone|iPod/.test(u) || (/Android/.test(u) && /Mobile/.test(u)) ? 'phone' : 'other'; })();
   var DEV = (function () { var d = lsGet('tz_dev'); if (!d) { d = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : 'd' + Date.now() + Math.random().toString(36).slice(2); lsSet('tz_dev', d); } return d; })();
   var freshLogin = false, devTimer = null, devKicked = false;
-  function devClaim() { return sb.from('active_device').upsert({ user_id: uid, device_id: DEV, updated_at: new Date().toISOString() }).then(function () {}, function () {}); }
+  function devClaim() { return sb.from('active_device').upsert({ user_id: uid, kind: DEVKIND, device_id: DEV, updated_at: new Date().toISOString() }, { onConflict: 'user_id,kind' }).then(function () {}, function () {}); }
   // v72: go back to the sign-in page inside the app, without reloading the page; reloading froze the iPad app on its splash screen
   function toLogin(msg) {
     clearLocal(); wipeMemory(); clearInterval(devTimer); devKicked = false;
@@ -1343,7 +1344,7 @@ body.on-login{margin:0;background:#0B3B2E}
   }
   function devCheck() {
     if (!sb || !uid || devKicked) return;
-    sb.from('active_device').select('device_id').eq('user_id', uid).maybeSingle().then(function (r) {
+    sb.from('active_device').select('device_id').eq('user_id', uid).eq('kind', DEVKIND).maybeSingle().then(function (r) {
       if (r.error) return;
       if (!r.data) { devClaim(); return; }
       if (r.data.device_id !== DEV) devKick();
